@@ -29,10 +29,10 @@ func main() {
 
 	// Users
 	e.POST("/users", env.CreateUser)
-	e.GET("/users/:id", env.GetUser)
+	e.GET("/users/:userID", env.GetUser)
 	e.GET("/users", env.GetUsers)
-	e.PUT("/users", env.UpdateUser)
-	e.DELETE("/users/:id", env.DeleteUser)
+	e.PUT("/users/:userID", env.UpdateUser)
+	e.DELETE("/users/:userID", env.DeleteUser)
 
 	// Booked Courses
 	e.POST("/bookedCourses", env.BookCourse)

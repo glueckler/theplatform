@@ -13,28 +13,7 @@ func (env *ENV) BookCourse(c echo.Context) error {
 	}
 	// If course is successfully booked into the booked courses table
 	if env.Connection.BookCourse(uc) {
-		// Get the form id for the booked course
-		formID := env.Connection.GetCourseFormID(uc.CourseID)
-		// Get the table maker data for the returned form
-		tableMakerData := env.Connection.GetTableMakerData(formID)
-		// Create a table using the UID of the Booked course with the Table Maker Data of the default form
-		// Keep the tableName handy for updated the booked courses entry
-		tableName := `courseForm_` + uc.BookedCourseID
-		courseFormTableName := env.Connection.CreateTable(tableName, tableMakerData)
-
-		// Create a table for the registrants using the UID of the booked course
-		tableName = `registrants_` + uc.BookedCourseID
-		registrantsTableName := env.Connection.CreateTable(tableName, db.RegistrantsTMD)
-
-		update := []string{
-			"courseFormTableName", courseFormTableName, "registrantsTableName", registrantsTableName,
-		}
-
-		// Update booked course with CourseFormTableName and RegistrantsTableName
-		_, ok := env.Connection.UpdateBookedCourseM(uc.BookedCourseID, update)
-		if ok {
-			return c.JSON(http.StatusCreated, uc)
-		}
+		return c.JSON(http.StatusCreated, uc)
 	}
 	return c.JSON(http.StatusBadRequest, uc)
 

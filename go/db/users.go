@@ -67,15 +67,3 @@ func (db *DB) CreateUser (user *User) (bool) {
 	user.ID = id
 	return true
 }
-
-func (db *DB) UpdateUser (id, field string, value interface{}) (bool) {
-	query := `UPDATE users SET `+field+` = 'Adrielll' WHERE userID = ?`
-	stmt, err := db.Prepare(query)
-	if err != nil {panic(err)}
-	res, err := stmt.Exec(id)
-	if err != nil {panic(err)}
-	affect, err := res.RowsAffected()
-	if err != nil {panic(err)}
-	fmt.Println(affect)
-	return true
-}

@@ -5,6 +5,7 @@ import (
 	"ThePlatform/go/db"
 	"net/http"
 	"fmt"
+	"encoding/json"
 )
 
 func (env *ENV) CreateUser(c echo.Context) error {
@@ -31,7 +32,14 @@ func (env *ENV) GetUsers(c echo.Context) error {
 }
 
 func (env *ENV) UpdateUser(c echo.Context) error {
-	return c.JSON(http.StatusOK, env.Connection.UpdateUser(c.Param("userID"), c.Param("field"), c.Param("value")))
+	updateMap := map[string]string{}
+	err := json.NewDecoder(c.Request().Body).Decode(&updateMap)
+	if err != nil{panic(err)}
+	affectedRow, ok := env.Connection.UpdateRow("users", "userID", c.Param("userID"), updateMap)
+	if ok {
+		return c.JSON(http.StatusOK, affectedRow)
+	}
+	return c.JSON(http.StatusBadRequest, 0)
 }
 
 func (env *ENV) DeleteUser(c echo.Context) error {

@@ -30,9 +30,9 @@ func (env *ENV) GetCourses(c echo.Context) error {
 	return c.JSON(http.StatusOK, env.Connection.GetCourses())
 }
 
-func (env *ENV) UpdateCourse(c echo.Context) error {
-	return c.JSON(http.StatusOK, env.Connection.UpdateUser(c.Param("userID"), c.Param("field"), c.Param("value")))
-}
+//func (env *ENV) UpdateCourse(c echo.Context) error {
+//	return c.JSON(http.StatusOK, env.Connection.UpdateUser(c.Param("userID"), c.Param("field"), c.Param("value")))
+//}
 
 func (env *ENV) DeleteCourse(c echo.Context) error {
 	env.Connection.DeleteCourse(c.Param("id"))

@@ -76,34 +76,8 @@ func (db *DB) DeleteBookedCourse (id string) int64 {
 	return AR
 }
 
-func (db *DB) UpdateBookedCourseM(bcID string, updateSlice []string) (int64, bool) {
-	sliceLen := len(updateSlice)
-	var updateString string
-	for i := 0; i < sliceLen; i++ {
-		if i % 2 == 0 {
-			updateString += updateSlice[i] + ` = "` + updateSlice[i+1] + `", `
-		}
-	}
-	updateString = strings.TrimSuffix(updateString, ", ")
-	fmt.Println("*******************************")
-	fmt.Println(updateString)
-	fmt.Println("*******************************")
-	query := `UPDATE bookedCourses SET ` + updateString + ` WHERE bookedCourseID = "` + bcID + `"`
-	stmt, err := db.Prepare(query)
-	if err != nil {panic(err)}
-	res, err := stmt.Exec()
-	if err != nil {panic(err)}
-	rowAffected, err := res.RowsAffected()
-	if err != nil {panic(err)}
-	return rowAffected, true
-}
-
-func (db *DB) UpdateRow(tableName, field, val string, updateData map[string]string) (int64, bool) {
-	updateData := map[string]string {
-		"fieldName": "Value",
-	}
-	sliceLen := len(updateSlice)
-	var updateString string
+func (db *DB) UpdateRow(tableName, fieldReferance, val string, updateData map[string]string) (int64, bool) {
+	updateString := ``
 	for fieldName, newVal := range updateData {
 		updateString += fieldName + ` = "` + newVal + `", `
 	}
@@ -111,7 +85,10 @@ func (db *DB) UpdateRow(tableName, field, val string, updateData map[string]stri
 	fmt.Println("*******************************")
 	fmt.Println(updateString)
 	fmt.Println("*******************************")
-	query := `UPDATE bookedCourses SET ` + updateString + ` WHERE bookedCourseID = "` + updateData["idVal"] + `"`
+	query := `UPDATE `+tableName+` SET ` + updateString + ` WHERE `+ fieldReferance +` = "` + val + `"`
+	fmt.Println("*******************************")
+	fmt.Println(query)
+	fmt.Println("*******************************")
 	stmt, err := db.Prepare(query)
 	if err != nil {panic(err)}
 	res, err := stmt.Exec()
