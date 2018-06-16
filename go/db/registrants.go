@@ -26,19 +26,6 @@ type Registrants struct {
 // 2. loop through userID's, combine bookedCourseID in a where clause to get all form data for that user
 // 3. store in a map and send back to client for display
 
-func (db *DB) GetUserFormDataForBookedCourse(bcID, userID string) map[string]map[string]string {
-	query := `SELECT * FROM formValues WHERE userID = ? && bookedCourseID = ?`
-	2
-}
 
-
-	{
-		"id": "klfja-k4js4j",
-		"type": "formField",
-		"attributes": {
-				"fieldName" : "question1",
-				"value"     : "some answer"
-			}
-	}
 
 

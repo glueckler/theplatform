@@ -50,11 +50,21 @@ func (db *DB) InitDB() {
 			"dateCreated"      : "timestamp",
 			"formGeneratorObj" : "string",
 		},
+		"formFields" : {
+			"ID"          	 : "serial",
+			"formFieldID" 	 : "text",
+			"bookedCourseID" : "text",
+			"field"		  	 : "text",
+			"value"		  	 : "text",
+ 		},
 		"locations": {
 			"ID"         : "serial",
+			"locationID" : "text",
 			"addressLn1" : "varchar(40)",
 			"addressLn2" : "varchar(40)",
-		}
+			"postalCode" : "varchar(10)",
+			"coords"	 : "varchar(50)",
+		},
 	}
 	db.CreateTables(tables)
 }
