@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo"
 	"ThePlatform/go/db"
 	"net/http"
+	"encoding/json"
 )
 
 func (env *ENV) BookCourse(c echo.Context) error {
@@ -19,15 +20,30 @@ func (env *ENV) BookCourse(c echo.Context) error {
 
 }
 
+// Get all booked courses
 func (env *ENV) GetBookedCourses(c echo.Context) error {
 	return c.JSON(http.StatusOK, env.Connection.GetBookedCourses())
 }
 
+// Get a specific booked course
 func (env *ENV) GetBookedCourse(c echo.Context) error {
 	return c.JSON(http.StatusOK, env.Connection.GetBookedCourse(c.Param("id")))
 }
 
+// Update a booked course
+func (env *ENV) UpdateBookedCourse(c echo.Context) error {
+	updateMap := map[string]string{}
+	err := json.NewDecoder(c.Request().Body).Decode(&updateMap)
+	if err != nil{panic(err)}
+	affectedRow, ok := env.Connection.UpdateRow("bookedCourses", "bookedCourseID", c.Param("id"), updateMap)
+	if ok {
+		return c.JSON(http.StatusOK, affectedRow)
+	}
+	return c.JSON(http.StatusBadRequest, 0)
+}
+
+// Delete a booked course
 func (env *ENV) DeleteBookedCourse(c echo.Context) error {
-	env.Connection.DeleteBookedCourse(c.Param("id"))
+	env.Connection.DeleteRow("bookedCourses", "bookedCourseID", c.Param("id"))
 	return c.NoContent(http.StatusOK)
 }

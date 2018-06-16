@@ -77,15 +77,3 @@ func (db *DB) GetCourseFormID(courseID string) string {
 	stmt.QueryRow(courseID).Scan(&formID)
 	return formID
 }
-
-//func (db *DB) UpdateUser (id, field string, value interface{}) (bool) {
-//	query := `UPDATE users SET `+field+` = 'Adrielll' WHERE userID = ?`
-//	stmt, err := db.Prepare(query)
-//	if err != nil {panic(err)}
-//	res, err := stmt.Exec(id)
-//	if err != nil {panic(err)}
-//	affect, err := res.RowsAffected()
-//	if err != nil {panic(err)}
-//	fmt.Println(affect)
-//	return true
-//}

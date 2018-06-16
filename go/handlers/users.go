@@ -43,6 +43,7 @@ func (env *ENV) UpdateUser(c echo.Context) error {
 }
 
 func (env *ENV) DeleteUser(c echo.Context) error {
-	env.Connection.DeleteUser(c.Param("id"))
-	return c.NoContent(http.StatusNoContent)
+	env.Connection.DeleteRow("users", "userID", c.Param("id"))
+	return c.NoContent(http.StatusOK)
 }
+

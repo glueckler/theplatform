@@ -66,37 +66,7 @@ func (db *DB) BookCourse (bookedCourse *BookedCourse) (bool) {
 	return true
 }
 
-func (db *DB) DeleteBookedCourse (id string) int64 {
-	query := `DELETE FROM bookedCourses WHERE bookedCourseID = ?`
-	stmt, err := db.Prepare(query)
-	if err != nil {panic(err)}
-	res, err := stmt.Exec(id)
-	if err != nil {panic(err)}
-	AR, _ := res.RowsAffected()
-	return AR
-}
 
-func (db *DB) UpdateRow(tableName, fieldReferance, val string, updateData map[string]string) (int64, bool) {
-	updateString := ``
-	for fieldName, newVal := range updateData {
-		updateString += fieldName + ` = "` + newVal + `", `
-	}
-	updateString = strings.TrimSuffix(updateString, ", ")
-	fmt.Println("*******************************")
-	fmt.Println(updateString)
-	fmt.Println("*******************************")
-	query := `UPDATE `+tableName+` SET ` + updateString + ` WHERE `+ fieldReferance +` = "` + val + `"`
-	fmt.Println("*******************************")
-	fmt.Println(query)
-	fmt.Println("*******************************")
-	stmt, err := db.Prepare(query)
-	if err != nil {panic(err)}
-	res, err := stmt.Exec()
-	if err != nil {panic(err)}
-	rowAffected, err := res.RowsAffected()
-	if err != nil {panic(err)}
-	return rowAffected, true
-}
 
 // Test JSON for cURL
 // "{\"StartDate\": \"2018-06-05\", \"courseID\": \"sjflksjfkj34234\", \"addressID\": \"324j234kf\", \"formIDs\": \"askdfjaklsdjfwe, 2asfjk2\"}"

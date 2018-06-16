@@ -5,6 +5,7 @@ import (
 	"ThePlatform/go/db"
 	"net/http"
 	"fmt"
+	"encoding/json"
 )
 
 func (env *ENV) CreateCourse(c echo.Context) error {
@@ -30,11 +31,18 @@ func (env *ENV) GetCourses(c echo.Context) error {
 	return c.JSON(http.StatusOK, env.Connection.GetCourses())
 }
 
-//func (env *ENV) UpdateCourse(c echo.Context) error {
-//	return c.JSON(http.StatusOK, env.Connection.UpdateUser(c.Param("userID"), c.Param("field"), c.Param("value")))
-//}
+func (env *ENV) UpdateCourse(c echo.Context) error {
+	updateMap := map[string]string{}
+	err := json.NewDecoder(c.Request().Body).Decode(&updateMap)
+	if err != nil{panic(err)}
+	affectedRow, ok := env.Connection.UpdateRow("courses", "courseID", c.Param("courseID"), updateMap)
+	if ok {
+		return c.JSON(http.StatusOK, affectedRow)
+	}
+	return c.JSON(http.StatusBadRequest, 0)
+}
 
 func (env *ENV) DeleteCourse(c echo.Context) error {
-	env.Connection.DeleteCourse(c.Param("id"))
+	env.Connection.DeleteRow("courses", "courseID", c.Param("id"))
 	return c.NoContent(http.StatusOK)
 }

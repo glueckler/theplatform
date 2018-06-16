@@ -34,20 +34,25 @@ func main() {
 	e.PUT("/users/:userID", env.UpdateUser)
 	e.DELETE("/users/:userID", env.DeleteUser)
 
-	// Booked Courses
-	e.POST("/bookedCourses", env.BookCourse)
-	e.GET("/bookedCourses/:id", env.GetBookedCourse)
-	e.GET("/bookedCourses", env.GetBookedCourses)
-	//e.PUT("/users", env.updateUser)
-	e.DELETE("/bookedCourses/:id", env.DeleteBookedCourse)
-
 	// Courses
 	e.POST("/course", env.CreateCourse)
 	e.GET("/courses/:id", env.GetCourse)
 	e.GET("/courses", env.GetCourses)
-	//e.PUT("/users", env.updateUser)
+	e.PUT("/courses/:courseID", env.UpdateCourse)
 	e.DELETE("/courses/:id", env.DeleteCourse)
 
+	// Booked Courses
+	e.POST("/bookedCourses", env.BookCourse)
+	e.GET("/bookedCourses/:id", env.GetBookedCourse)
+	e.GET("/bookedCourses", env.GetBookedCourses)
+	e.PUT("/bookedCourses/:id", env.UpdateBookedCourse)
+	e.DELETE("/bookedCourses/:id", env.DeleteBookedCourse)
+
+	// Registrants
+	e.GET("/registrants/:id", env.GetRegistrant)
+	e.GET("/registrants", env.GetRegistrants)
+	e.PUT("/registrants/:id", env.UpdateRegistrant)
+	e.DELETE("/registrants/:id", env.DeleteRegistrant)
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
