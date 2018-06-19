@@ -6,33 +6,24 @@ import (
 )
 
 type Course struct {
-	InstructorName  string   `json:"instructorName"`
-	Description     string   `json:"description"`
-	Price           float32  `json:"price"`
+	ID                int64
+	CourseID          string   `json:"CourseID"`
+	CourseName        string   `json:"CourseName"`
+	InstructorName    string   `json:"instructorName"`
+	Description       string   `json:"description"`
+	Price             float32  `json:"price"`
 	DefaultFormID     string   `json:"defaultFormID"`
-	ID              int64    `json:"ID"`
-	CourseID        string   `json:"CourseID"`
-	CourseName      string   `json:"CourseName"`
-}
-
-func (db *DB) GetCourse (id string) Course {
-	query := `SELECT * FROM courses WHERE courseID = ?`
-	stmt, err := db.Prepare(query)
-	if err != nil {panic(err)}
-	course := Course{}
-	err = stmt.QueryRow(id).Scan(&course.InstructorName, &course.Description, &course.Price, &course.DefaultFormID, &course.ID, &course.CourseID, &course.CourseName)
-	if err != nil {panic(err)}
-	return course
+	DefaultLocationID string   `json:"defaultFormID"`
 }
 
 func (db *DB) CreateCourse (course *Course) (bool) {
-	query := `INSERT INTO courses (instructorName, description, price, defaultFormID, courseID, courseName) VALUES (?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO courses (instructorName, description, price, defaultFormID, courseID, courseName, defaultLocationID) VALUES (?, ?, ?, ?, ?, ?, ?)`
 	stmt, err := db.Prepare(query)
 	if err != nil {panic(err)}
 	randomID, err := uuid.NewV4()
 	if err != nil {panic(err)}
 	course.CourseID = randomID.String()
-	res, err := stmt.Exec(course.InstructorName, course.Description, course.Price, course.DefaultFormID, course.CourseID, course.CourseName)
+	res, err := stmt.Exec(course.InstructorName, course.Description, course.Price, course.DefaultFormID, course.CourseID, course.CourseName, course.DefaultLocationID)
 	if err != nil {panic(err)}
 	id, err := res.LastInsertId()
 	if err != nil {panic(err)}
@@ -40,18 +31,17 @@ func (db *DB) CreateCourse (course *Course) (bool) {
 	return true
 }
 
-// Test cURL for creating course "{\"instructorName\": \"Skeet\", \"description\": \"Some great course where you learn lots about the great outdoors!\", \"price\": \"300.34\", \"defaultFormID\": \"3, 4\", \"courseID\": \"SomeCourseID\", \"courseName\": \"proper Butt cleaning\"}"
-
-
-func (db *DB) DeleteCourse (id string) int64 {
-	query := `DELETE FROM users WHERE courseID = ?`
+func (db *DB) GetCourse (id string) Course {
+	query := `SELECT * FROM courses WHERE courseID = ?`
 	stmt, err := db.Prepare(query)
 	if err != nil {panic(err)}
-	res, err := stmt.Exec(id)
+	course := Course{}
+	err = stmt.QueryRow(id).Scan(&course.ID, &course.CourseID, &course.CourseName, &course.InstructorName, &course.Description, &course.Price, &course.DefaultFormID, &course.DefaultLocationID)
 	if err != nil {panic(err)}
-	AR, _ := res.RowsAffected()
-	return AR
+	return course
 }
+
+// Test cURL for creating course "{\"instructorName\": \"Skeet\", \"description\": \"Some great course where you learn lots about the great outdoors!\", \"price\": \"300.34\", \"defaultFormID\": \"3, 4\", \"courseID\": \"SomeCourseID\", \"courseName\": \"proper Butt cleaning\"}"
 
 func (db *DB) GetCourses() []Course {
 	query := `SELECT * FROM courses`
@@ -62,7 +52,7 @@ func (db *DB) GetCourses() []Course {
 	courses := []Course{}
 	for rows.Next() {
 		course := Course{}
-		err = rows.Scan(&course.InstructorName, &course.Description, &course.Price, &course.DefaultFormID, &course.ID, &course.CourseID, &course.CourseName)
+		err = rows.Scan(&course.ID, &course.CourseID, &course.CourseName, &course.InstructorName, &course.Description, &course.Price, &course.DefaultFormID, &course.DefaultLocationID)
 		if err != nil {panic(err)}
 		courses = append(courses, course)
 	}

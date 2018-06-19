@@ -18,8 +18,10 @@ import (
 
 
 func main() {
-	connection := db.Connect("root:password@/newdb")
+	connection := db.Connect("root:password@/ThePlatform")
 	env := &handlers.ENV{Connection: connection}
+
+	env.Connection.InitDB()
 
 	e := echo.New()
 
@@ -35,24 +37,44 @@ func main() {
 	e.DELETE("/users/:userID", env.DeleteUser)
 
 	// Courses
-	e.POST("/course", env.CreateCourse)
-	e.GET("/courses/:id", env.GetCourse)
+	e.POST("/courses", env.CreateCourse)
+	e.GET("/courses/:courseID", env.GetCourse)
 	e.GET("/courses", env.GetCourses)
 	e.PUT("/courses/:courseID", env.UpdateCourse)
-	e.DELETE("/courses/:id", env.DeleteCourse)
+	e.DELETE("/courses/:courseID", env.DeleteCourse)
 
 	// Booked Courses
 	e.POST("/bookedCourses", env.BookCourse)
-	e.GET("/bookedCourses/:id", env.GetBookedCourse)
+	e.GET("/bookedCourses/:bookedCourseID", env.GetBookedCourse)
 	e.GET("/bookedCourses", env.GetBookedCourses)
-	e.PUT("/bookedCourses/:id", env.UpdateBookedCourse)
-	e.DELETE("/bookedCourses/:id", env.DeleteBookedCourse)
+	e.PUT("/bookedCourses/:bookedCourseID", env.UpdateBookedCourse)
+	e.DELETE("/bookedCourses/:bookedCourseID", env.DeleteBookedCourse)
 
 	// Registrants
-	e.GET("/registrants/:id", env.GetRegistrant)
+	e.GET("/registrants/:registrantID", env.GetRegistrant)
 	e.GET("/registrants", env.GetRegistrants)
-	e.PUT("/registrants/:id", env.UpdateRegistrant)
-	e.DELETE("/registrants/:id", env.DeleteRegistrant)
+	e.PUT("/registrants/:registrantID", env.UpdateRegistrant)
+	e.DELETE("/registrants/:registrantID", env.DeleteRegistrant)
+
+	// Forms
+	e.POST("/forms", env.CreateForm)
+	e.GET("/forms/:formID", env.GetForm)
+	e.GET("/forms", env.GetForms)
+	e.PUT("/forms/:formID", env.UpdateForm)
+	e.DELETE("/forms/:formID", env.DeleteForm)
+
+	// FormFields
+	e.POST("/formFields", env.CreateFormField)
+	e.GET("/formFields/:formFieldID", env.GetFormField)
+	e.PUT("/formFields/:formFieldID", env.UpdateFormField)
+	e.DELETE("/formFields/:formFieldID", env.DeleteFormField)
+
+	// Forms
+	e.POST("/locations", env.CreateLocation)
+	e.GET("/locations/:locationID", env.GetLocation)
+	e.GET("/locations", env.GetLocations)
+	e.PUT("/locations/:locationID", env.UpdateLocation)
+	e.DELETE("/locations/:locationID", env.DeleteLocation)
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))

@@ -27,7 +27,7 @@ func (env *ENV) GetBookedCourses(c echo.Context) error {
 
 // Get a specific booked course
 func (env *ENV) GetBookedCourse(c echo.Context) error {
-	return c.JSON(http.StatusOK, env.Connection.GetBookedCourse(c.Param("id")))
+	return c.JSON(http.StatusOK, env.Connection.GetBookedCourse(c.Param("bookedCourseID")))
 }
 
 // Update a booked course
@@ -35,7 +35,7 @@ func (env *ENV) UpdateBookedCourse(c echo.Context) error {
 	updateMap := map[string]string{}
 	err := json.NewDecoder(c.Request().Body).Decode(&updateMap)
 	if err != nil{panic(err)}
-	affectedRow, ok := env.Connection.UpdateRow("bookedCourses", "bookedCourseID", c.Param("id"), updateMap)
+	affectedRow, ok := env.Connection.UpdateRow("bookedCourses", "bookedCourseID", c.Param("bookedCourseID"), updateMap)
 	if ok {
 		return c.JSON(http.StatusOK, affectedRow)
 	}
@@ -44,6 +44,6 @@ func (env *ENV) UpdateBookedCourse(c echo.Context) error {
 
 // Delete a booked course
 func (env *ENV) DeleteBookedCourse(c echo.Context) error {
-	env.Connection.DeleteRow("bookedCourses", "bookedCourseID", c.Param("id"))
+	env.Connection.DeleteRow("bookedCourses", "bookedCourseID", c.Param("bookedCourseID"))
 	return c.NoContent(http.StatusOK)
 }

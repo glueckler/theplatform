@@ -3,8 +3,6 @@ package db
 import (
 	"time"
 	"github.com/satori/go.uuid"
-	"strings"
-	"fmt"
 )
 
 type BookedCourse struct {
@@ -15,11 +13,9 @@ type BookedCourse struct {
 	EndDate              string    `json:"endDate"`
 	DayData              string    `json:"dayData"`
 	CourseID 		     string    `json:"courseID"`
-	AddressID 		     string    `json:"addressID"`
+	LocationID 		     string    `json:"locationID"`
 	InstructorID         string    `json:"instructorID"`
 	FormID	 		     string
-	CourseFormTableName  string
-	RegistrantsTableName string
 }
 
 func (db *DB) GetBookedCourses() []BookedCourse {
@@ -31,7 +27,7 @@ func (db *DB) GetBookedCourses() []BookedCourse {
 	bookedCourses := []BookedCourse{}
 	for rows.Next() {
 		bookedCourse := BookedCourse{}
-		err = rows.Scan(&bookedCourse.ID, &bookedCourse.BookedCourseID, &bookedCourse.DateCreated, &bookedCourse.StartDate, &bookedCourse.EndDate, &bookedCourse.DayData, &bookedCourse.CourseID, &bookedCourse.AddressID, &bookedCourse.InstructorID, &bookedCourse.FormID, &bookedCourse.CourseFormTableName, &bookedCourse.RegistrantsTableName)
+		err = rows.Scan(&bookedCourse.ID, &bookedCourse.BookedCourseID, &bookedCourse.DateCreated, &bookedCourse.StartDate, &bookedCourse.EndDate, &bookedCourse.DayData, &bookedCourse.CourseID, &bookedCourse.LocationID, &bookedCourse.InstructorID, &bookedCourse.FormID)
 		if err != nil {panic(err)}
 		bookedCourses = append(bookedCourses, bookedCourse)
 	}
@@ -43,13 +39,13 @@ func (db *DB) GetBookedCourse (id string) BookedCourse {
 	stmt, err := db.Prepare(query)
 	if err != nil {panic(err)}
 	bookedCourse := BookedCourse{}
-	err = stmt.QueryRow(id).Scan(&bookedCourse.ID, &bookedCourse.BookedCourseID, &bookedCourse.DateCreated, &bookedCourse.StartDate, &bookedCourse.EndDate, &bookedCourse.DayData, &bookedCourse.CourseID, &bookedCourse.AddressID, &bookedCourse.InstructorID, &bookedCourse.FormID, &bookedCourse.CourseFormTableName, &bookedCourse.RegistrantsTableName)
+	err = stmt.QueryRow(id).Scan(&bookedCourse.ID, &bookedCourse.BookedCourseID, &bookedCourse.DateCreated, &bookedCourse.StartDate, &bookedCourse.EndDate, &bookedCourse.DayData, &bookedCourse.CourseID, &bookedCourse.LocationID, &bookedCourse.InstructorID, &bookedCourse.FormID)
 	if err != nil {panic(err)}
 	return bookedCourse
 }
 
 func (db *DB) BookCourse (bookedCourse *BookedCourse) (bool) {
-	query := `INSERT INTO bookedCourses (bookedCourseID, dateCreated, startDate, endDate, dayData, courseID, addressID, instructorID, formID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO bookedCourses (bookedCourseID, dateCreated, startDate, endDate, dayData, courseID, locationID, instructorID, formID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
 	stmt, err := db.Prepare(query)
 	if err != nil {panic(err)}
 	randomID, err := uuid.NewV4()
@@ -58,7 +54,7 @@ func (db *DB) BookCourse (bookedCourse *BookedCourse) (bool) {
 	bookedCourse.DateCreated = time.Now().String()[0: 10]
 	bookedCourse.FormID = db.GetCourseFormID(bookedCourse.CourseID)
 	res, err := stmt.Exec(bookedCourse.BookedCourseID, bookedCourse.DateCreated, bookedCourse.StartDate,
-		bookedCourse.EndDate, bookedCourse.DayData, bookedCourse.CourseID, bookedCourse.AddressID, bookedCourse.InstructorID, bookedCourse.FormID)
+		bookedCourse.EndDate, bookedCourse.DayData, bookedCourse.CourseID, bookedCourse.LocationID, bookedCourse.InstructorID, bookedCourse.FormID)
 	if err != nil {panic(err)}
 	id, err := res.LastInsertId()
 	if err != nil {panic(err)}
@@ -69,7 +65,7 @@ func (db *DB) BookCourse (bookedCourse *BookedCourse) (bool) {
 
 
 // Test JSON for cURL
-// "{\"StartDate\": \"2018-06-05\", \"courseID\": \"sjflksjfkj34234\", \"addressID\": \"324j234kf\", \"formIDs\": \"askdfjaklsdjfwe, 2asfjk2\"}"
+// "{\"StartDate\": \"2018-06-05\", \"courseID\": \"sjflksjfkj34234\", \"locationID\": \"324j234kf\", \"formIDs\": \"askdfjaklsdjfwe, 2asfjk2\"}"
 
 // {
 //"2018-06-05": "6pm-5pm",

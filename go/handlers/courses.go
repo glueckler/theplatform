@@ -21,9 +21,7 @@ func (env *ENV) CreateCourse(c echo.Context) error {
 }
 
 func (env *ENV) GetCourse(c echo.Context) error {
-	//id, _ := strconv.Atoi(c.Param("id"))
-	fmt.Println(c.Param("id"))
-	return c.JSON(http.StatusOK, env.Connection.GetCourse(c.Param("id")))
+	return c.JSON(http.StatusOK, env.Connection.GetCourse(c.Param("courseID")))
 }
 
 func (env *ENV) GetCourses(c echo.Context) error {
@@ -43,6 +41,6 @@ func (env *ENV) UpdateCourse(c echo.Context) error {
 }
 
 func (env *ENV) DeleteCourse(c echo.Context) error {
-	env.Connection.DeleteRow("courses", "courseID", c.Param("id"))
+	env.Connection.DeleteRow("courses", "courseID", c.Param("courseID"))
 	return c.NoContent(http.StatusOK)
 }

@@ -6,7 +6,10 @@ import (
 )
 
 func (db *DB) DeleteRow (tableName, field, val string) int64 {
-	query := `DELETE FROM `+tableName+` WHERE `+field+` = ` + val
+	query := `DELETE FROM `+tableName+` WHERE `+field+` = "` + val + `"`
+	fmt.Println("*******************************")
+	fmt.Println(query)
+	fmt.Println("*******************************")
 	stmt, err := db.Prepare(query)
 	if err != nil {panic(err)}
 	res, err := stmt.Exec()
@@ -18,7 +21,7 @@ func (db *DB) DeleteRow (tableName, field, val string) int64 {
 func (db *DB) UpdateRow(tableName, fieldReferance, val string, updateData map[string]string) (int64, bool) {
 	updateString := ``
 	for fieldName, newVal := range updateData {
-		updateString += fieldName + ` = "` + newVal + `", `
+		updateString += fieldName + ` = '` + newVal + `', `
 	}
 	updateString = strings.TrimSuffix(updateString, ", ")
 	fmt.Println("*******************************")
