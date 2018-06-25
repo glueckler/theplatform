@@ -45,6 +45,7 @@ const config = {
             presets: ['@babel/env'],
           },
         },
+        
       },
       // TODO: asdf (dean) minify css for production builds
       {
@@ -63,6 +64,7 @@ const config = {
       client: rootPath,
       components: resolve(rootPath, 'components'),
       dux: resolve(rootPath, 'dux'),
+      api: resolve(rootPath, 'api'),
     },
     extensions: ['.js', '.jsx', '/index.jsx', '/index.js'],
   },

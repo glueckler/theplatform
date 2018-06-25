@@ -8,8 +8,10 @@ import APITest from 'components/APITest'
 
 const App = () => (
   <Provider store={store}>
-    <FormBuilder />
-    <APITest />
+    <div>
+      <FormBuilder />
+      <APITest></APITest>
+    </div>
   </Provider>
 )
 
