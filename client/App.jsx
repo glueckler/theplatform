@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 
 import store from 'client/store'
 
-import APITest from 'components/APITest'
+import APITest from 'elements/APITest'
 
 const App = () => (
   <Provider store={store}>
