@@ -1,31 +1,39 @@
 package db
 
-type Registrants struct {
+type Registrant struct {
+	ID              int
 	UserID 		    string  `json:"userID"`
 	BookedCourseID  string 	`json:"bookedCourseID"`
-	Price  		    float32	`json:"price"`
-	AmtPayed	    float32 `json:"amtPayed"`
-	HasPayed   	    bool    `json:"hasPayed"`
-	DateRegistered  string  `json:"dateRegistered"`
+	Price  		    float32
+	AmtPayed	    float32
+	HasPayed   	    bool
+	DateRegistered  string
 }
 
-//func (db *DB) SignUpUser()
 
+func (db *DB) GetRegistrants() []Registrant {
+	query := `SELECT * FROM registrants`
+	stmt, err := db.Prepare(query)
+	if err != nil {panic(err)}
+	rows, err := stmt.Query()
+	if err != nil {panic(err)}
+	registrants := []Registrant{}
+	for rows.Next() {
+		registrant := Registrant{}
+		err = rows.Scan(&registrant.ID, &registrant.UserID, &registrant.BookedCourseID, &registrant.Price, &registrant.AmtPayed, &registrant.HasPayed, &registrant.DateRegistered)
+		if err != nil {panic(err)}
+		registrants= append(registrants, registrant)
+	}
+	return registrants
+}
 
-
-// What happens When a user signs up?
-
-// 1. Registrant row is created for that user
-// 2. FormValues with bookedCourseID & formID are added to formValues table
-// 3. Payment form appears, if they pay successfully, registrant row is updated
-//
-
-// To retrieve all user form data for a booked course:
-
-// 1. use bookedCourseID to get all userID's from registrants table
-// 2. loop through userID's, combine bookedCourseID in a where clause to get all form data for that user
-// 3. store in a map and send back to client for display
-
-
-
+func (db *DB) GetRegistrant (id string) Registrant {
+	query := `SELECT * FROM registrants WHERE registrantID = ?`
+	stmt, err := db.Prepare(query)
+	if err != nil {panic(err)}
+	registrant := Registrant{}
+	err = stmt.QueryRow(id).Scan(&registrant.ID, &registrant.UserID, &registrant.BookedCourseID, &registrant.Price, &registrant.AmtPayed, &registrant.HasPayed, &registrant.DateRegistered)
+	if err != nil {panic(err)}
+	return registrant
+}
 
