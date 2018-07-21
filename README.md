@@ -1,21 +1,3 @@
-# form builder
-
-- put modal underneath form 
-- side bar with every created form (list of made forms)
-  - edit mode
-  - view mode
-- edit mode
-  - confirm delete field
-  - should be able to edit form name
-- create new form at top of form nav list
-- form is added to the nav list as soon as it's created with a name
-- add delete button to bottom of edit view
-- create "view form" view
-
-
----
-
-
 # Course instructor user story
 
 ## homepage
@@ -31,7 +13,7 @@
 ## form creation
 - as a user visiting the form creation module, you will see a list of all forms that have been created on the left in a list 
 - you will be able to select existing forms and edit these forms (kind of like templates)
-- if you make an edit to a form that is being used in a course form then you will be warned that it will change every course form that is using this form template
+- if you make an edit to a form then you will be warned that it will change every course form that is using this form template
 - you will also be able to create new forms and delete forms
 - forms will be divided into two main sections (general info/questions and payment options)
 - when creating a new form you will enter all form fields for general info and payment options
