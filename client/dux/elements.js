@@ -5,7 +5,7 @@ const componentState = element => {
   const reducer = (state = {}, action) => {
     switch (action.type) {
       case setStateAction: {
-        return { ...state, [containerKey]: action.state }
+        return { ...state, ...action.state }
       }
       default: {
         return state
@@ -15,7 +15,7 @@ const componentState = element => {
   stateReducers[containerKey] = reducer
 }
 
-const containers = ['APITest']
+const containers = ['APITest', 'FE']
 containers.forEach(element => {
   componentState(element)
 })

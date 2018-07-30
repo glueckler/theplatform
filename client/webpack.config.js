@@ -66,6 +66,7 @@ const config = {
       dux: resolve(rootPath, 'dux'),
       api: resolve(rootPath, 'api'),
       utils: resolve(rootPath, 'utils'),
+      yoots: resolve(rootPath, 'utils/yoots'),
     },
     extensions: ['.js', '.jsx', '/index.jsx', '/index.js'],
   },

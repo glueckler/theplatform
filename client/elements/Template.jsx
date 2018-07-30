@@ -19,8 +19,10 @@ class Template extends Component {
 
 Template.propTypes = {
   setEl: PropTypes.func.isRequired,
+  el: PropTypes.shape({}).isRequired,
 }
-Template.defaultProps = {}
+Template.defaultProps = {
+}
 
 const mapState = state => ({
   el: state.elTemplate,

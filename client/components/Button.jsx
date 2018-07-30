@@ -1,11 +1,38 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React from 'react'
+import PropTypes from 'prop-types'
 
-const Button = props => {
-  return <button className="btn btn-primary">Primary</button>
-};
+import classNames from 'classnames'
 
-Button.propTypes = {};
-Button.defaultProps = {};
+const Button = ({ link, small, primary, ...props }) => {
+  if (link) {
+    return (
+      <button
+        {...props}
+        className={classNames('btn btn-link', { ['btn-sm']: small })}
+      />
+    )
+  }
+  return (
+    <button
+      {...props}
+      className={classNames(
+        'btn',
+        { ['btn-primary']: primary },
+        { ['btn-sm']: small }
+      )}
+    />
+  )
+}
 
-export default Button;
+Button.propTypes = {
+  link: PropTypes.bool,
+  small: PropTypes.bool,
+  primary: PropTypes.bool,
+}
+Button.defaultProps = {
+  link: null,
+  small: null,
+  primary: null,
+}
+
+export default Button
