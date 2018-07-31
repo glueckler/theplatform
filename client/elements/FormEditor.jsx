@@ -7,8 +7,11 @@ import Text from 'components/Text'
 import Flex from 'components/Flex'
 import Button from 'components/Button'
 import Modal from 'components/Modal'
-import Radios, { RadioGroupLabel, RadioOption } from 'components/Radios'
+import Radios, { RadioOption } from 'components/Radios'
 import Checkboxes, { Checkbox } from 'components/Checkboxes'
+import TextInput from 'components/TextInput'
+import TextArea from 'components/TextArea'
+import Select, { SelectOption } from 'components/Select'
 
 const AddField = styled.div`
   position: relative;
@@ -17,6 +20,8 @@ const AddField = styled.div`
   overflow: hidden;
   display: flex;
   align-items: center;
+  justify-content: center;
+  cursor: pointer;
   &:hover {
     height: 40px;
     background: #dff0d0;
@@ -25,6 +30,9 @@ const AddField = styled.div`
 class FormEditor extends Component {
   constructor(props) {
     super(props)
+    // set to empty obj so lookup values are undefined instead of null
+    // will not be necessary once state isn't used after testing purposes
+    this.state = {}
     props.setEl({
       addFieldModalOpen: false,
       formTitle: 'Example Form',
@@ -83,46 +91,119 @@ class FormEditor extends Component {
             </Flex>
             {/* Form Fields */}
             {/* -   -   -   -   -   - */}
-
-            <Radios
-              defaultValue="radio"
-              onChange={e => {
-                alert(e.target.name)
-              }}
-            >
-              <label>These are radios</label>
-              <RadioOption label="this is a label" name="radio2" id="radio2" />
-              <RadioOption
-                label="this is another label"
-                name="radio"
-                id="radio"
-              />
-            </Radios>
-            <Checkboxes
-              defaultValue="none"
-              onChange={e => {
-                alert(e.target.name)
-              }}
-            >
-              <label>Check box group lable</label>
-              <Checkbox label="my first checkbox" name="check1" id="check1" />
-            </Checkboxes>
-            {/* Add Field */}
-            {/* -   -   -   -   -   - */}
-            <AddField
-              open
-              onClick={e => {
-                this.handleOpenAddFieldModal()
-              }}
-            >
-              <Text
-                zeroMargin
-                variant="p3"
-                style={{ position: 'absolute', top: '8px' }}
+            <form>
+              <Radios
+                defaultValue="radio"
+                onChange={e => {
+                  alert(e.target.value)
+                  this.setState({
+                    radiosVal: e.target.value,
+                  })
+                }}
+                value={this.state.radiosVal}
+                label="these radios"
+                id="radios"
               >
-                Add form field
-              </Text>
-            </AddField>
+                <RadioOption
+                  label="this is a label"
+                  value="radio2"
+                  id="radio2"
+                />
+                <RadioOption
+                  label="this is another label"
+                  value="radio"
+                  id="radio"
+                />
+              </Radios>
+              <AddField
+                onClick={e => {
+                  this.handleOpenAddFieldModal()
+                }}
+              >
+                <Text
+                  zeroMargin
+                  variant="p3"
+                  style={{ position: 'absolute', top: '8px' }}
+                >
+                  Add form field
+                </Text>
+              </AddField>
+              <Checkboxes
+                onChange={(e, checked) => {
+                  alert(e.target.value)
+                  if (!checked) {
+                    this.setState({
+                      checkVal: (this.state.checkVal || []).concat([
+                        e.target.value,
+                      ]),
+                    })
+                  } else {
+                    this.setState({
+                      checkVal: this.state.checkVal.filter(val => {
+                        return val !== e.target.value
+                      }),
+                    })
+                  }
+                }}
+                values={this.state.checkVal}
+                label="checkbox label"
+              >
+                <Checkbox label="my first checkbox" value="check1" />
+                <Checkbox label="my second checkbox" value="check2" />
+              </Checkboxes>
+              <TextInput
+                onChange={e => {
+                  this.setState({
+                    TIVal: e.target.value,
+                  })
+                }}
+                value={this.state.TIVal}
+                placeholder="some placeholder"
+                label="Text Input"
+                helperText="helper text"
+              />
+              <TextArea
+                onChange={e => {
+                  this.setState({
+                    TAVal: e.target.value,
+                  })
+                }}
+                value={this.state.TAVal}
+                placeholder="some textarea placeholder"
+                label="TextArea"
+                helperText="ta helper text"
+              />
+              <Select
+                onChange={e => {
+                  this.setState({
+                    selectVal: e.target.value,
+                  })
+                }}
+                value={this.state.selectVal}
+                defaultValue="2"
+                label="Select Label"
+              >
+                <SelectOption value="1">chicken</SelectOption>
+                <SelectOption value="2">liver</SelectOption>
+                <SelectOption value="3">oil</SelectOption>
+              </Select>
+              {/* Add Field */}
+              {/* -   -   -   -   -   - */}
+              <AddField
+                open
+                onClick={e => {
+                  this.handleOpenAddFieldModal()
+                }}
+              >
+                <Text
+                  zeroMargin
+                  variant="p3"
+                  style={{ position: 'absolute', top: '8px' }}
+                >
+                  Add form field
+                </Text>
+              </AddField>
+            </form>
           </div>
         </div>
       </>
@@ -134,6 +215,7 @@ FormEditor.propTypes = {
   setEl: PropTypes.func.isRequired,
   el: PropTypes.shape({
     formTitle: PropTypes.string,
+    addFieldModalOpen: PropTypes.bool,
   }).isRequired,
 }
 FormEditor.defaultProps = {}

@@ -8,44 +8,56 @@ export const RadioOption = ({ label, ...props }) => {
     <div className="radio">
       <input
         type="radio"
-        {...pick(props, ['id', 'name', 'checked', 'onChange'])}
+        id={props.value}
+        {...pick(props, ['value', 'checked', 'onChange'])}
       />
-      <label htmlFor={props.id}>{label}</label>
+      <label htmlFor={props.value}>{label}</label>
     </div>
   )
 }
 
 RadioOption.propTypes = {
   label: PropTypes.string.isRequired,
-  id: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
 }
 
-const Radios = ({ children, onChange, value, defaultValue, ...props }) => {
+const Radios = ({
+  label,
+  children,
+  onChange,
+  value,
+  defaultValue,
+  ...props
+}) => {
   return (
-    <form {...pick(props, ['onChange'])}>
-      <section className="form-block">
+    <div className="clr-form-control">
+      {label && <label className="clr-control-label">{label}</label>}
+      <div className="clr-control-container">
         {React.Children.map(children, child => {
           if (child.type && child.type.name === 'RadioOption') {
             return React.cloneElement(<RadioOption {...child.props} />, {
               onChange,
               checked:
-                child.props.name === value ||
-                (!value && child.props.name === defaultValue),
+                child.props.value === value ||
+                (!value && child.props.value === defaultValue),
             })
           }
           return child
         })}
-      </section>
-    </form>
+      </div>
+    </div>
   )
 }
 
 Radios.propTypes = {
-  children: PropTypes.arrayOf(PropTypes.node),
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]),
   onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
   defaultValue: PropTypes.string.isRequired,
+  label: PropTypes.string,
 }
 Radios.defaultProps = {}
 

@@ -8,44 +8,57 @@ export const Checkbox = ({ label, ...props }) => {
     <div className="checkbox">
       <input
         type="checkbox"
-        {...pick(props, ['id', 'name', 'checked', 'onChange'])}
+        {...pick(props, ['value', 'checked', 'onChange'])}
+        id={props.value}
       />
-      <label htmlFor={props.id}>{label}</label>
+      <label htmlFor={props.value}>{label}</label>
     </div>
   )
 }
 
 Checkbox.proptypes = {
   label: PropTypes.string.isRequired,
-  id: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
 }
 
-const Checkboxes = ({ children, onChange, value, defaultValue, ...props }) => {
+const Checkboxes = ({
+  label,
+  children,
+  onChange,
+  values,
+  defaultValue,
+  ...props
+}) => {
   return (
-    <form {...pick(props, ['onChange'])}>
-      <section className="form-block">
+    <div className="clr-form-control">
+      {label && <label className="clr-control-label">{label}</label>}
+      <div className="clr-control-container">
         {React.Children.map(children, child => {
           if (child.type && child.type.name === 'Checkbox') {
+            const checked = (values || []).includes(child.props.value)
             return React.cloneElement(<Checkbox {...child.props} />, {
-              onChange,
-              checked:
-                child.props.name === value ||
-                (!value && child.props.name === defaultValue),
+              onChange: e => {
+                onChange(e, checked)
+              },
+              checked,
             })
           }
           return child
         })}
-      </section>
-    </form>
+      </div>
+    </div>
   )
 }
 
 Checkboxes.propTypes = {
-  children: PropTypes.arrayOf(PropTypes.node),
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]),
   onChange: PropTypes.func.isRequired,
-  value: PropTypes.string,
+  values: PropTypes.arrayOf(PropTypes.string),
   defaultValue: PropTypes.string.isRequired,
+  label: PropTypes.string,
 }
 Checkboxes.defaultProps = {}
 
