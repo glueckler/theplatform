@@ -7,6 +7,7 @@ export const pick = (source, include) => {
     return null
   }
   return include.reduce((col, key) => {
+    if ([null, undefined].includes(source[key])) return col
     return { ...col, [key]: source[key] }
   }, {})
 }
