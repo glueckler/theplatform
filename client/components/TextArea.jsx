@@ -40,8 +40,6 @@ TextArea.propTypes = {
   onChange: PropTypes.func,
   isRequired: PropTypes.bool,
 }
-TextArea.defaultProps = {
-  value: '',
-}
+TextArea.defaultProps = {}
 
 export default TextArea

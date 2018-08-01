@@ -15,7 +15,7 @@ const componentState = element => {
   stateReducers[containerKey] = reducer
 }
 
-const containers = ['APITest', 'FE']
+const containers = ['APITest', 'FORM_EDITOR', 'MODAL']
 containers.forEach(element => {
   componentState(element)
 })

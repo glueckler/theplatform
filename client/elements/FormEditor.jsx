@@ -12,21 +12,9 @@ import Checkboxes, { Checkbox } from 'components/Checkboxes'
 import TextInput from 'components/TextInput'
 import TextArea from 'components/TextArea'
 import Select, { SelectOption } from 'components/Select'
+import AddFormField from 'components/AddFormField'
+import FormField from 'components/FormField'
 
-const AddField = styled.div`
-  position: relative;
-  height: ${props => (props.open ? '40px' : '10px')};
-  transition: all 100ms ease-in-out;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  &:hover {
-    height: 40px;
-    background: #dff0d0;
-  }
-`
 class FormEditor extends Component {
   constructor(props) {
     super(props)
@@ -85,7 +73,7 @@ class FormEditor extends Component {
       ],
     })
 
-    this.INPUT_TYPES = {
+    this.FIELD = {
       SELECT: 'select',
       TEXTAREA: 'textarea',
       TEXTINPUT: 'textinput',
@@ -95,168 +83,35 @@ class FormEditor extends Component {
 
     this.setEl = props.setEl
 
-    this.handleOpenAddFieldModal = this.handleOpenAddFieldModal.bind(this)
-    this.handleCloseAddFieldModal = this.handleCloseAddFieldModal.bind(this)
-    this.handleOpenEditNameModal = this.handleOpenEditNameModal.bind(this)
-    this.handleCloseEditNameModal = this.handleCloseEditNameModal.bind(this)
+    this.handleAddFieldSelector = this.handleAddFieldSelector.bind(this)
   }
 
-  handleOpenAddFieldModal() {
-    this.setEl({ addFieldModalOpen: true })
-  }
-
-  handleCloseAddFieldModal() {
-    this.setEl({ addFieldModalOpen: false })
-  }
-
-  handleOpenEditNameModal() {
-    this.setEl({
-      editNameModalOpen: true,
+  handleAddFieldSelector(node) {
+    this.props.setModal({
+      header: <>Choose Custom Form Field</>,
+      open: true,
+      content: node,
+      buttons: (
+        <>
+          <Button onClick={this.handle}>save</Button>
+        </>
+      ),
     })
-  }
-
-  handleCloseEditNameModal() {
-    this.setEl({
-      editNameModalOpen: false,
-    })
-  }
-
-  handleAddCustomField() {
-    return
-  }
-
-  get modalProps() {
-    //
-    // add field modal
-    //
-    if (this.props.el.addFieldModalOpen) {
-      return {
-        header: <>Create Custom Form Field</>,
-        open: this.props.el.addFieldModalOpen,
-        onCancel: this.handleCloseAddFieldModal,
-        footer: (
-          <>
-            <Button onClick={this.handleAddCustomField}>add</Button>
-            <Button onClick={this.handleCloseAddFieldModal} link>
-              cancel
-            </Button>
-          </>
-        ),
-      }
-    }
-    //
-    // edit form name modal
-    //
-    if (this.props.el.editNameModalOpen) {
-      return {
-        header: <>Change Form Name</>,
-        open: this.props.el.editNameModalOpen,
-        onCancel: this.handleCloseEditNameModal,
-        footer: (
-          <>
-            <Button onClick={this.handle}>save</Button>
-            <Button onClick={this.handleCloseEditNameModal} link>
-              cancel
-            </Button>
-          </>
-        ),
-      }
-    }
-  }
-
-  renderAddFieldButton(open) {
-    return (
-      <AddField
-        open={open}
-        onClick={e => {
-          this.handleOpenAddFieldModal()
-        }}
-      >
-        <Text
-          zeroMargin
-          variant="p3"
-          style={{ position: 'absolute', top: '8px' }}
-        >
-          Add form field
-        </Text>
-      </AddField>
-    )
   }
 
   renderFields() {
     return (this.props.el.formFields || []).map(field => {
-      const disabledOnChange = () => {
+      field.onChange = () => {
         alert('Form Fields are not active during Form Editing')
       }
-      const genericProps = {
-        label: field.label,
-        isRequired: field.isRequired,
-        onChange: disabledOnChange,
-        key: field.formID,
-      }
 
-      const T = this.INPUT_TYPES
-      const fT = field.inputType
-      let RenderType
-      let props
-      let children
-      if (fT === T.SELECT) {
-        RenderType = Select
-        props = {
-          value: field.placeholder,
-        }
-        children = (field.options || []).map(option => (
-          <SelectOption key={option} value={option}>
-            {option}
-          </SelectOption>
-        ))
-      }
-      if (fT === T.TEXTAREA) {
-        RenderType = TextArea
-        props = {
-          placeholder: field.placeholder,
-        }
-      }
-      if (fT === T.TEXTINPUT) {
-        RenderType = TextInput
-        props = {
-          placeholder: field.placeholder,
-        }
-      }
-      if (fT === T.RADIO) {
-        RenderType = Radios
-        props = {
-          value: field.placeholder,
-        }
-        children = (field.options || []).map(option => (
-          <RadioOption label={option} key={option} value={option} />
-        ))
-      }
-      if (fT === T.CHECKBOX) {
-        RenderType = Checkboxes
-        props = {
-          value: field.placeholder,
-        }
-        children = (field.options || []).map(option => (
-          <Checkbox label={option} key={option} value={option} />
-        ))
-      }
-      if (!RenderType) return null
-      return React.createElement(
-        RenderType,
-        {
-          ...genericProps,
-          ...props,
-        },
-        children
-      )
+      return <FormField key={field.formID} field={field} />
     })
   }
 
   render() {
     return (
       <>
-        <Modal {...this.modalProps} />
         <div
           style={{ width: '100vw', display: 'flex', justifyContent: 'center' }}
         >
@@ -279,16 +134,16 @@ class FormEditor extends Component {
                   style={{ lineHeight: '2rem' }}
                 />
               )}
-              <Button link onClick={this.handleOpenEditNameModal}>
-                Edit Name
-              </Button>
             </Flex>
             {/* Form Fields */}
             {/* -   -   -   -   -   - */}
             <form>{this.renderFields()}</form>
             {/* Add Field Button */}
             {/* -   -   -   -   -   - */}
-            {this.renderAddFieldButton(true)}
+            <AddFormField
+              visible
+              onReceiveFieldSelector={this.handleAddFieldSelector}
+            />
           </div>
         </div>
       </>
@@ -307,11 +162,14 @@ FormEditor.propTypes = {
 FormEditor.defaultProps = {}
 
 const mapState = state => ({
-  el: state.elFE,
+  el: state.elFORM_EDITOR,
 })
 const mapDispath = dispatch => ({
   setEl: state => {
-    dispatch({ type: 'FE_SET_STATE', state })
+    dispatch({ type: 'FORM_EDITOR_SET_STATE', state })
+  },
+  setModal: state => {
+    dispatch({ type: 'MODAL_SET_STATE', state })
   },
 })
 

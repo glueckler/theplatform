@@ -28,7 +28,10 @@ const Checkboxes = ({ label, children, onChange, values, ...props }) => {
       <div className="clr-control-container">
         {React.Children.map(children, child => {
           if (child.type && child.type.name === 'Checkbox') {
-            const checked = (values || []).includes(child.props.value)
+            const checked = (() => {
+              if (values === undefined) return
+              return (values || []).includes(child.props.value)
+            })()
             return React.cloneElement(<Checkbox {...child.props} />, {
               onChange: e => {
                 onChange(e, checked)
