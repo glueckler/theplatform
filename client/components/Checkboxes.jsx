@@ -21,14 +21,7 @@ Checkbox.proptypes = {
   value: PropTypes.string.isRequired,
 }
 
-const Checkboxes = ({
-  label,
-  children,
-  onChange,
-  values,
-  defaultValue,
-  ...props
-}) => {
+const Checkboxes = ({ label, children, onChange, values, ...props }) => {
   return (
     <div className="clr-form-control">
       {label && <label className="clr-control-label">{label}</label>}
@@ -43,7 +36,7 @@ const Checkboxes = ({
               checked,
             })
           }
-          return child
+          return null
         })}
       </div>
     </div>
@@ -57,7 +50,6 @@ Checkboxes.propTypes = {
   ]),
   onChange: PropTypes.func.isRequired,
   values: PropTypes.arrayOf(PropTypes.string),
-  defaultValue: PropTypes.string.isRequired,
   label: PropTypes.string,
 }
 Checkboxes.defaultProps = {}

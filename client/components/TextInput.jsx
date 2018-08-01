@@ -9,6 +9,7 @@ const TextInput = ({
   className,
   value,
   onChange,
+  isRequired,
   ...props
 }) => {
   return (
@@ -41,6 +42,7 @@ TextInput.propTypes = {
   className: PropTypes.string,
   onChange: PropTypes.func,
   value: PropTypes.string,
+  isRequired: PropTypes.bool,
 }
 TextInput.defaultProps = {
   value: '',

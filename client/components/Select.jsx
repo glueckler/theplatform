@@ -39,8 +39,6 @@ Select.propTypes = {
   options: PropTypes.array,
   defaultValue: PropTypes.string,
 }
-Select.defaultProps = {
-  defaultValue: '1',
-}
+Select.defaultProps = {}
 
 export default Select

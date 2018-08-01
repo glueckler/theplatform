@@ -21,14 +21,7 @@ RadioOption.propTypes = {
   value: PropTypes.string.isRequired,
 }
 
-const Radios = ({
-  label,
-  children,
-  onChange,
-  value,
-  defaultValue,
-  ...props
-}) => {
+const Radios = ({ label, children, onChange, value, ...props }) => {
   return (
     <div className="clr-form-control">
       {label && <label className="clr-control-label">{label}</label>}
@@ -37,12 +30,10 @@ const Radios = ({
           if (child.type && child.type.name === 'RadioOption') {
             return React.cloneElement(<RadioOption {...child.props} />, {
               onChange,
-              checked:
-                child.props.value === value ||
-                (!value && child.props.value === defaultValue),
+              checked: child.props.value === value,
             })
           }
-          return child
+          return null
         })}
       </div>
     </div>
@@ -56,7 +47,6 @@ Radios.propTypes = {
   ]),
   onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
-  defaultValue: PropTypes.string.isRequired,
   label: PropTypes.string,
 }
 Radios.defaultProps = {}

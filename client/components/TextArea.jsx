@@ -7,6 +7,7 @@ const TextArea = ({
   helperText,
   placeholder,
   label,
+  isRequired,
   ...props
 }) => {
   return (
@@ -37,6 +38,7 @@ TextArea.propTypes = {
   className: PropTypes.string,
   value: PropTypes.string,
   onChange: PropTypes.func,
+  isRequired: PropTypes.bool,
 }
 TextArea.defaultProps = {
   value: '',
