@@ -69,13 +69,15 @@ class Text extends Component {
   }
 
   componentDidMount() {
+    if (!this.props.editable) return
     // since the children property will not be used for with editable flag
-    if (this.props.editable) {
-      this.contentRef.current.innerText = this.props.content
-    }
+    this.contentRef.current.innerText = this.props.content
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    // code below is not very relavent if not editable
+    if (!this.props.editable) return
+
     const currentRef = this.contentRef.current
 
     // if the content prop changes for some reason, all hell breaks loose
@@ -111,9 +113,9 @@ class Text extends Component {
     }
 
     if (this.state.active) {
-      currentRef.focus()
+      if (currentRef) currentRef.focus()
     } else {
-      currentRef.blur()
+      if (currentRef) currentRef.blur()
     }
   }
 
