@@ -32,11 +32,16 @@ class Modal extends PureComponent {
       buttons,
       onCancel,
       className,
+      style,
       ...props
     } = this.props
     return (
       <>
-        <div {...props} className={`modal${(className && ' ') || ''}`}>
+        <div
+          {...props}
+          className={`modal${(className && ' ') || ''}`}
+          style={{ ...style, maxHeight: '550px', overflow: 'scroll' }}
+        >
           <div className="modal-dialog" role="dialog" aria-hidden="true">
             <div className="modal-content">
               <div className="modal-header">
@@ -68,6 +73,7 @@ Modal.propTypes = {
   buttons: PropTypes.node,
   onCancel: PropTypes.func,
   className: PropTypes.string,
+  style: PropTypes.shape({}),
 }
 Modal.defaultProps = {}
 

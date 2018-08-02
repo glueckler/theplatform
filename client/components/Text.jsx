@@ -11,10 +11,21 @@ class Text extends Component {
   constructor(props) {
     super(props)
 
-    this.state = {
-      showPlaceholder: false,
-      focusNextCycle: false,
+    if (props.editable && !props.content) {
+      console.error(
+        "WARNING: if content prop isn't supplied to editable Text component it will not function as expected"
+      )
     }
+
+    this.state = {
+      showPlaceholder: props.content === '',
+      localContent: this.props.content,
+      initialContent: this.props.content,
+      active: false,
+    }
+
+    this.allowCaretReset = true
+    this.preventFocus = false
 
     this.contentRef = React.createRef()
 
@@ -23,28 +34,29 @@ class Text extends Component {
       this.shouldComponentUpdate = (nextProps, nextState) => {
         let { props, state, contentRef } = this
 
-        // We need not rerender if the change of props simply reflects the user's edits.
-        // Rerendering in this case would make the cursor/caret jump
-
-        if (nextState.showPlaceholder !== state.showPlaceholder) {
-          return true
-        }
-
         // Rerender if there is no element yet... (somehow?)
         if (!contentRef.current) {
           return true
         }
 
-        // ...or if html really changed... (programmatically, not by user edit)
+        // check if the placeholder state has changed
+        if (this.state.showPlaceholder !== nextState.showPlaceholder) {
+          return true
+        }
+
+        if (this.state.active !== nextState.active) {
+          return true
+        }
+
+        // or if content really changed (programmatically, not by user edit)
         if (
           stripNbsp(nextProps.content) !==
-            stripNbsp(contentRef.current.innerText) &&
-          nextProps.content !== props.content
+            stripNbsp(this.state.initialContent) &&
+          nextProps.content !== this.state.initialContent
         ) {
           return true
         }
 
-        // let optional = ['style', 'className', 'disabled', 'tagName']
         let optional = ['styles', 'className', 'variant']
 
         // Handle additional properties
@@ -57,6 +69,7 @@ class Text extends Component {
   }
 
   componentDidMount() {
+    // since the children property will not be used for with editable flag
     if (this.props.editable) {
       this.contentRef.current.innerText = this.props.content
     }
@@ -64,31 +77,63 @@ class Text extends Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const currentRef = this.contentRef.current
-    if (this.state.focusNextCycle) {
-      currentRef.focus()
+
+    // if the content prop changes for some reason, all hell breaks loose
+    if (this.props.content !== this.state.initialContent) {
       this.setState({
-        focusNextCycle: false,
+        initialContent: this.props.content,
+        localContent: this.props.content,
       })
     }
 
-    if (currentRef && currentRef.innerText !== this.props.content) {
-      currentRef.innerText = this.props.content
-      const range = document.createRange()
-      const sel = window.getSelection()
-      range.setStart(currentRef, 1)
-      range.collapse(true)
-      sel.removeAllRanges()
-      sel.addRange(range)
+    // check if placeholer is necessary in new state
+    // checking placeholder against current innerText is not reliable so use localContent
+    if (this.handlePlaceholder(this.state.localContent)) {
+      // also if handlePlaceholder triggers another cycle we will bail on the rest of this function
+      // and not fuck up this focus flags
+      return
+    }
+
+    if (currentRef && currentRef.innerText !== this.state.localContent) {
+      currentRef.innerText = this.state.localContent
+      // cause this will cause automatic focus which is not alwaayss cool
+      if (this.state.active) {
+        const range = document.createRange()
+        range.setStart(currentRef, 1)
+        range.collapse(true)
+        // removes highlights
+        const sel = window.getSelection()
+        sel.removeAllRanges()
+        sel.addRange(range)
+      } else {
+        this.allowCaretReset = true
+      }
+    }
+
+    if (this.state.active) {
+      currentRef.focus()
+    } else {
+      currentRef.blur()
     }
   }
 
   handleKeyDown(e) {
-    let blur
-    if ([13, 27].includes(e.keyCode)) {
-      blur = true
+    if (e.key === 'Escape') {
+      this.handleEscapeComponent()
     }
-    if (blur && this.contentRef.current) {
-      this.contentRef.current.blur()
+
+    if (e.key === 'Enter') {
+      // "Cannot assign to read only property 'target' of object"
+      this.props.onChange({
+        ...event,
+        target: {
+          value: this.contentRef.current.innerText,
+        },
+      })
+      this.setState({
+        active: false,
+      })
+      e.preventDefault()
     }
   }
 
@@ -97,29 +142,45 @@ class Text extends Component {
 
     let newText = this.contentRef.current.innerText
 
-    // if innerText becomes empty, replace with contentName
-    if (newText === '') {
+    this.handlePlaceholder(newText)
+
+    this.setState({
+      localContent: newText,
+    })
+  }
+
+  handlePlaceholder(innerText) {
+    // if innerText becomes empty, replace with placeholder
+    if (innerText === '' && !this.state.showPlaceholder) {
       this.setState({
         showPlaceholder: true,
-        focusNextCycle: true,
       })
-    } else if (newText !== '' && this.state.showPlaceholder) {
-      this.setState({
-        showPlaceholder: false,
-        focusNextCycle: true,
-      })
+      return true
     }
 
-    if (this.props.onChange && newText !== this.lastText) {
-      // "Cannot assign to read only property 'target' of object"
-      this.props.onChange({
-        ...event,
-        target: {
-          value: newText,
-        },
+    if (innerText !== '' && this.state.showPlaceholder) {
+      this.setState({
+        showPlaceholder: false,
       })
+      return true
     }
-    this.lastText = newText
+  }
+
+  handleEscapeComponent() {
+    // reset component as if it was not touched and do not call onChange
+    this.setState({
+      localContent: this.state.initialContent,
+      active: false,
+    })
+    // just to really blur it
+    this.contentRef.current.blur()
+
+    // set the inner HTML or the range method inside componentDidUpdate will error
+    this.contentRef.current.innerText = this.state.initialContent
+
+    // removes highlights
+    const sel = window.getSelection()
+    sel.removeAllRanges()
   }
 
   render() {
@@ -135,7 +196,7 @@ class Text extends Component {
     } = this.props
 
     let RenderAs = 'p'
-    if (Y.startsWith('h', variant)) {
+    if (Y.isString(variant) && Y.startsWith('h', variant)) {
       RenderAs = variant
     }
 
@@ -154,6 +215,30 @@ class Text extends Component {
     if (editable) {
       props.onInput = this.handleOnInput
       props.onKeyDown = this.handleKeyDown
+      props.onBlur = e => {
+        this.setState({
+          active: false,
+        })
+        if (this.props.onBlur) {
+          this.props.onBlur()
+        }
+      }
+      props.onFocus = e => {
+        this.setState({
+          active: true,
+        })
+        if (this.props.onFocus) {
+          this.props.onFocus()
+        }
+      }
+      props.onClick = e => {
+        this.setState({
+          active: true,
+        })
+        if (this.props.onClick) {
+          this.props.onClick()
+        }
+      }
       props.ref = this.contentRef
       props.contentEditable = true
       props.children = null
@@ -163,15 +248,21 @@ class Text extends Component {
 
     if (this.state.showPlaceholder) {
       return (
-        <div style={{ position: 'relative', minWidth: '200px' }}>
+        <div
+          style={{ position: 'relative', minWidth: '200px', overflow: 'auto' }}
+        >
           {textOut}
           <RenderAs
             style={{
               ...props.style,
               position: 'absolute',
-              zIndex: '-1',
               left: '0',
               top: '0',
+            }}
+            onClick={() => {
+              this.setState({
+                active: true,
+              })
             }}
             className={props.className}
           >
@@ -191,12 +282,14 @@ Text.propTypes = {
   style: PropTypes.shape({}),
   zeroMargin: PropTypes.bool,
   editable: PropTypes.bool,
+  onChange: PropTypes.func,
 }
 Text.defaultProps = {
   className: null,
   variant: null,
   style: null,
   zeroMargin: false,
+  content: '',
 }
 
 export default Text

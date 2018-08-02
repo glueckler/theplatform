@@ -65,7 +65,7 @@ Radios.propTypes = {
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
   ]),
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   value: PropTypes.string,
   label: PropTypes.string,
   // only necessary for uncontrolled radios

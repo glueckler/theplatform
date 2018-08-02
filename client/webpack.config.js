@@ -62,7 +62,6 @@ const config = {
     alias: {
       client: rootPath,
       components: resolve(rootPath, 'components'),
-      c: resolve(rootPath, 'components'),
       elements: resolve(rootPath, 'elements'),
       dux: resolve(rootPath, 'dux'),
       api: resolve(rootPath, 'api'),
