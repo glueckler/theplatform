@@ -96,7 +96,7 @@ class Text extends Component {
       return
     }
 
-    if (currentRef && currentRef.innerText !== this.state.localContent) {
+    if (currentRef?.innerText !== this.state.localContent) {
       currentRef.innerText = this.state.localContent
       // cause this will cause automatic focus which is not alwaayss cool
       if (this.state.active) {

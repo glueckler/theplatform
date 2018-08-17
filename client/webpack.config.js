@@ -41,9 +41,10 @@ const config = {
         exclude: /(node_modules)/,
         use: {
           loader: 'babel-loader',
-          options: {
-            presets: ['@babel/env'],
-          },
+          // see babel.config.js instead
+          // options: {
+          //   presets: ['@babel/env'],
+          // },
         },
       },
       // TODO: asdf (dean) minify css for production builds
