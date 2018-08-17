@@ -173,10 +173,6 @@ class FieldSelector extends PureComponent {
             </S.Preview>
           )
         })()}
-        {(() => {
-          let asdf = S
-          debugger
-        })()}
       </div>
     )
   }
