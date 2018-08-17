@@ -99,16 +99,6 @@ class FormEditor extends Component {
     })
   }
 
-  renderFields() {
-    return (this.props.el.formFields || []).map(field => {
-      field.onChange = () => {
-        alert('Form Fields are not active during Form Editing')
-      }
-
-      return <FormField key={field.formID} field={field} />
-    })
-  }
-
   render() {
     return (
       <>
@@ -137,7 +127,11 @@ class FormEditor extends Component {
             </Flex>
             {/* Form Fields */}
             {/* -   -   -   -   -   - */}
-            <form>{this.renderFields()}</form>
+            <form>
+              {(this.props.el.formFields || []).map(field => {
+                return <FormField key={field.formID} field={field} />
+              })}
+            </form>
             {/* Add Field Button */}
             {/* -   -   -   -   -   - */}
             <AddFormField

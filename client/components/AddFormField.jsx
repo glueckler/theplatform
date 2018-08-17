@@ -24,8 +24,11 @@ const AddFieldBar = styled.div`
   }
 `
 
+// cache for styled components
+const S = {}
+
 //
-// This component is returned when it is requested and will go on to live it's own life somewhere..
+// This component is returned when it is requested and will go on to live a life of its own
 //
 class FieldSelector extends PureComponent {
   constructor(props) {
@@ -65,7 +68,7 @@ class FieldSelector extends PureComponent {
 
     this.handleMetadataTextInput = this.handleMetadataTextInput.bind(this)
   }
-  
+
   handleMetadataTextInput(e) {
     const inputName = e.target.name
     this.setState({
@@ -148,15 +151,32 @@ class FieldSelector extends PureComponent {
         )}
         {/*   *   *   *   */}
         {/* Preview */}
-        <Text variant="h3">Preview..</Text>
-        <div style={{ minHeight: '90px' }}>
-          <FormField
-            field={{
-              inputType: this.state.inputType || this.state.inputTypePreview,
-              ...this.state.fieldMetadata,
-            }}
-          />
-        </div>
+        {(() => {
+          if (!S.Preview) {
+            S.Preview = styled.div`
+              margin-top: 50px;
+              border-top: 1px solid #afafaf;
+            `
+          }
+          return (
+            <S.Preview>
+              <Text variant="h3">Preview..</Text>
+              <div style={{ minHeight: '90px' }}>
+                <FormField
+                  field={{
+                    inputType:
+                      this.state.inputType || this.state.inputTypePreview,
+                    ...this.state.fieldMetadata,
+                  }}
+                />
+              </div>
+            </S.Preview>
+          )
+        })()}
+        {(() => {
+          let asdf = S
+          debugger
+        })()}
       </div>
     )
   }

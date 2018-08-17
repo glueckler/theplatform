@@ -51,10 +51,12 @@ Checkboxes.propTypes = {
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
   ]),
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   values: PropTypes.arrayOf(PropTypes.string),
   label: PropTypes.string,
 }
-Checkboxes.defaultProps = {}
+Checkboxes.defaultProps = {
+  onChange: () => {},
+}
 
 export default Checkboxes
