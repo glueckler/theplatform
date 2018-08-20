@@ -1,17 +1,10 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import styled from 'styled-components'
 
 import Text from 'components/Text'
 import Flex from 'components/Flex'
 import Button from 'components/Button'
-import Modal from 'components/Modal'
-import Radios, { RadioOption } from 'components/Radios'
-import Checkboxes, { Checkbox } from 'components/Checkboxes'
-import TextInput from 'components/TextInput'
-import TextArea from 'components/TextArea'
-import Select, { SelectOption } from 'components/Select'
 import AddFormField from 'components/AddFormField'
 import FormField from 'components/FormField'
 
@@ -22,6 +15,7 @@ class FormEditor extends Component {
     // will not be necessary once state isn't used after testing purposes
     this.state = {}
     props.setEl({
+      newFormFieldMetadata: {},
       addFieldModalOpen: false,
       formTitle: 'Example Form',
       formFields: [
@@ -73,29 +67,94 @@ class FormEditor extends Component {
       ],
     })
 
-    this.FIELD = {
-      SELECT: 'select',
-      TEXTAREA: 'textarea',
-      TEXTINPUT: 'textinput',
-      RADIO: 'radio',
-      CHECKBOX: 'checkbox',
-    }
+    // delete i think
+    // this.FIELD = {
+    //   SELECT: 'select',
+    //   TEXTAREA: 'textarea',
+    //   TEXTINPUT: 'textinput',
+    //   RADIO: 'radio',
+    //   CHECKBOX: 'checkbox',
+    // }
 
     this.setEl = props.setEl
 
     this.handleAddFieldSelector = this.handleAddFieldSelector.bind(this)
+    this.handleAddFieldSelectorOnChange = this.handleAddFieldSelectorOnChange.bind(
+      this
+    )
+    this.handleAddFieldSave = this.handleAddFieldSave.bind(this)
   }
 
-  handleAddFieldSelector(node) {
+  handleAddFieldSelector(FieldSelector) {
     this.props.setModal({
       header: <>Choose Custom Form Field</>,
       open: true,
-      content: node,
+      content: <FieldSelector onChange={this.handleAddFieldSelectorOnChange} />,
       buttons: (
         <>
-          <Button onClick={this.handle}>save</Button>
+          <Button
+            disabled={!this.isAddFieldEnabled()}
+            onClick={this.handleAddFieldSave}
+          >
+            save
+          </Button>
         </>
       ),
+    })
+  }
+
+  handleAddFieldSelectorOnChange(fieldMetadata) {
+    this.setEl({
+      newFormFieldMetadata: fieldMetadata,
+    })
+
+    // this will make sure the button disabled state is updated if necessary
+    this.props.setModal({
+      buttons: (
+        <>
+          <Button
+            disabled={!this.isAddFieldEnabled(fieldMetadata)}
+            onClick={this.handleAddFieldSave}
+          >
+            save
+          </Button>
+        </>
+      ),
+    })
+  }
+
+  isAddFieldEnabled(metadata) {
+    const meta = metadata?.fieldMetadata
+    const inputType = metadata?.inputType
+    if (!meta || !inputType) {
+      return false
+    }
+    return true
+  }
+
+  handleAddFieldSave() {
+    const meta = this.props.el.newFormFieldMetadata.fieldMetadata
+    const inputType = this.props.el.newFormFieldMetadata.inputType
+    if (!this.isAddFieldEnabled(this.props.el.newFormFieldMetadata)) {
+      console.error('insufficient data to create form field')
+      return
+    }
+    this.setEl({
+      formFields: [
+        ...this.props.el.formFields,
+        {
+          // the data coming from the FieldSelector should have consistent key names
+          ...meta,
+          inputType,
+          position: 4,
+        },
+      ],
+      newFormFieldMetadata: {},
+    })
+
+    // and make sure to close the modal
+    this.props.setModal({
+      open: false,
     })
   }
 

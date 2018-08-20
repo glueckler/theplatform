@@ -50,6 +50,7 @@ class FieldSelector extends PureComponent {
       inputType: null,
     }
 
+
     // fieldMetadata options onChange
     this.optionsOnChange = index => e => {
       this.setState({
@@ -67,6 +68,26 @@ class FieldSelector extends PureComponent {
     this.optionsOnChangeCache = []
 
     this.handleMetadataTextInput = this.handleMetadataTextInput.bind(this)
+    this.handleOnSave = this.handleOnSave.bind(this)
+  }
+
+  componentDidMount() {
+    // this will refresh stale state in the parent component
+    this.handleOnChange()
+  }
+
+  componentDidUpdate(_, prevState) {
+    // always call props.onChange if the conmponent state changed
+    if (this.state !== prevState) {
+      this.handleOnChange()
+    }
+  }
+
+  handleOnChange() {
+    if (this.props.onChange) {
+      // just pass the whole state up and cherrry pick in the parent component
+      this.props.onChange(this.state)
+    }
   }
 
   handleMetadataTextInput(e) {
@@ -90,6 +111,13 @@ class FieldSelector extends PureComponent {
         options: this.state.fieldMetadata.options.splice(index, 1, value),
       },
     })
+  }
+
+  handleOnSave() {
+    return {
+      ...this.state.fieldMetadata,
+      inputType: this.state.inputType,
+    }
   }
 
   render() {
@@ -182,20 +210,14 @@ class AddFormField extends PureComponent {
   constructor(props) {
     super(props)
 
-    const FIELDS = FormField.getFields()
-
     this.state = {}
 
     this.handleAddField = this.handleAddField.bind(this)
   }
 
-  createFieldSelector() {
-    return <FieldSelector />
-  }
-
   handleAddField() {
     if (this.props.onReceiveFieldSelector) {
-      this.props.onReceiveFieldSelector(this.createFieldSelector())
+      this.props.onReceiveFieldSelector(FieldSelector)
     }
   }
 
@@ -214,7 +236,9 @@ class AddFormField extends PureComponent {
   }
 }
 
-AddFormField.propTypes = {}
+AddFormField.propTypes = {
+  onReceiveFieldSelector: PropTypes.func.isRequired,
+}
 AddFormField.defaultProps = {}
 
 export default AddFormField

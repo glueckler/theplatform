@@ -37,11 +37,7 @@ class Modal extends PureComponent {
     } = this.props
     return (
       <>
-        <div
-          {...props}
-          className={`modal${(className && ' ') || ''}`}
-          style={{ ...style, maxHeight: '550px', overflow: 'scroll' }}
-        >
+        <div {...props} className={`modal${(className && ' ') || ''}`}>
           <div className="modal-dialog" role="dialog" aria-hidden="true">
             <div className="modal-content">
               <div className="modal-header">
