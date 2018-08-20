@@ -50,14 +50,12 @@ class FieldSelector extends PureComponent {
       inputType: null,
     }
 
-
     // fieldMetadata options onChange
     this.optionsOnChange = index => e => {
       this.setState({
         fieldMetadata: {
           ...this.state.fieldMetadata,
           options: (() => {
-            // apparently splice doesn't return a new array it just mutates
             const options = this.state.fieldMetadata.options
             options.splice(index, 1, e.target.value)
             return [...options]
@@ -72,7 +70,7 @@ class FieldSelector extends PureComponent {
   }
 
   componentDidMount() {
-    // this will refresh stale state in the parent component
+    // refresh state in the parent component to prevent stale state
     this.handleOnChange()
   }
 
@@ -84,6 +82,7 @@ class FieldSelector extends PureComponent {
   }
 
   handleOnChange() {
+    // eslint-disable-next-line react/prop-types
     if (this.props.onChange) {
       // just pass the whole state up and cherrry pick in the parent component
       this.props.onChange(this.state)

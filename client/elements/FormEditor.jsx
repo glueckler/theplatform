@@ -14,7 +14,9 @@ class FormEditor extends Component {
     // set to empty obj so lookup values are undefined instead of null
     // will not be necessary once state isn't used after testing purposes
     this.state = {}
-    props.setEl({
+    this.setEl = props.setEl
+
+    this.setEl({
       newFormFieldMetadata: {},
       addFieldModalOpen: false,
       formTitle: 'Example Form',
@@ -67,25 +69,17 @@ class FormEditor extends Component {
       ],
     })
 
-    // delete i think
-    // this.FIELD = {
-    //   SELECT: 'select',
-    //   TEXTAREA: 'textarea',
-    //   TEXTINPUT: 'textinput',
-    //   RADIO: 'radio',
-    //   CHECKBOX: 'checkbox',
-    // }
-
-    this.setEl = props.setEl
-
-    this.handleAddFieldSelector = this.handleAddFieldSelector.bind(this)
+    this.handleInitializeAddFieldSelector = this.handleInitializeAddFieldSelector.bind(
+      this
+    )
     this.handleAddFieldSelectorOnChange = this.handleAddFieldSelectorOnChange.bind(
       this
     )
     this.handleAddFieldSave = this.handleAddFieldSave.bind(this)
   }
 
-  handleAddFieldSelector(FieldSelector) {
+  // this is the callback that receives the FieldSelector node and places it in a modal
+  handleInitializeAddFieldSelector(FieldSelector) {
     this.props.setModal({
       header: <>Choose Custom Form Field</>,
       open: true,
@@ -93,7 +87,7 @@ class FormEditor extends Component {
       buttons: (
         <>
           <Button
-            disabled={!this.isAddFieldEnabled()}
+            disabled={!this.isAddFieldSaveEnabled()}
             onClick={this.handleAddFieldSave}
           >
             save
@@ -103,17 +97,18 @@ class FormEditor extends Component {
     })
   }
 
+  // called any time the state is changed within the FieldSelector component
   handleAddFieldSelectorOnChange(fieldMetadata) {
     this.setEl({
       newFormFieldMetadata: fieldMetadata,
     })
 
-    // this will make sure the button disabled state is updated if necessary
+    // this will make sure the button's disabled state is updated if necessary
     this.props.setModal({
       buttons: (
         <>
           <Button
-            disabled={!this.isAddFieldEnabled(fieldMetadata)}
+            disabled={!this.isAddFieldSaveEnabled(fieldMetadata)}
             onClick={this.handleAddFieldSave}
           >
             save
@@ -123,7 +118,7 @@ class FormEditor extends Component {
     })
   }
 
-  isAddFieldEnabled(metadata) {
+  isAddFieldSaveEnabled(metadata) {
     const meta = metadata?.fieldMetadata
     const inputType = metadata?.inputType
     if (!meta || !inputType) {
@@ -135,7 +130,7 @@ class FormEditor extends Component {
   handleAddFieldSave() {
     const meta = this.props.el.newFormFieldMetadata.fieldMetadata
     const inputType = this.props.el.newFormFieldMetadata.inputType
-    if (!this.isAddFieldEnabled(this.props.el.newFormFieldMetadata)) {
+    if (!this.isAddFieldSaveEnabled(this.props.el.newFormFieldMetadata)) {
       console.error('insufficient data to create form field')
       return
     }
@@ -143,7 +138,7 @@ class FormEditor extends Component {
       formFields: [
         ...this.props.el.formFields,
         {
-          // the data coming from the FieldSelector should have consistent key names
+          // the data coming from the FieldSelector (ie meta, and inputType) should have consistent key names
           ...meta,
           inputType,
           position: 4,
@@ -195,7 +190,7 @@ class FormEditor extends Component {
             {/* -   -   -   -   -   - */}
             <AddFormField
               visible
-              onReceiveFieldSelector={this.handleAddFieldSelector}
+              onReceiveFieldSelector={this.handleInitializeAddFieldSelector}
             />
           </div>
         </div>
