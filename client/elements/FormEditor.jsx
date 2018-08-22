@@ -182,9 +182,26 @@ class FormEditor extends Component {
             {/* Form Fields */}
             {/* -   -   -   -   -   - */}
             <form>
-              {(this.props.el.formFields || []).map(field => {
-                return <FormField key={field.formID} field={field} />
-              })}
+              {(this.props.el.formFields || []).map(field => (
+                <div style={{ position: 'relative' }} key={field.formID}>
+                  <FormField field={field} />
+                  <Flex
+                    flexEnd
+                    style={{
+                      position: 'absolute',
+                      top: '0',
+                      bottom: '0',
+                      left: '0',
+                      right: '0',
+                    }}
+                  >
+                    <Button link>Edit</Button>
+                    <Button link danger>
+                      Delete
+                    </Button>
+                  </Flex>
+                </div>
+              ))}
             </form>
             {/* Add Field Button */}
             {/* -   -   -   -   -   - */}
@@ -205,6 +222,10 @@ FormEditor.propTypes = {
     formTitle: PropTypes.string,
     addFieldModalOpen: PropTypes.bool,
     formFields: PropTypes.array,
+    newFormFieldMetaData: PropTypes.shape({
+      fieldMetadata: PropTypes.shape({}),
+      inputType: PropTypes.string,
+    }),
   }).isRequired,
 }
 FormEditor.defaultProps = {}

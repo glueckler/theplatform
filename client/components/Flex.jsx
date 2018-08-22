@@ -3,13 +3,16 @@ import PropTypes from 'prop-types'
 
 class Flex extends PureComponent {
   render() {
-    let { style, spaceBetween, centerItems, ...props } = this.props
+    let { style, spaceBetween, centerItems, flexEnd, ...props } = this.props
 
     //
     // justifyContent
     //
     if (spaceBetween) {
       style.justifyContent = 'space-between'
+    }
+    if (flexEnd) {
+      style.justifyContent = 'flex-end'
     }
 
     //
@@ -27,6 +30,7 @@ Flex.propTypes = {
   style: PropTypes.shape({}),
   spaceBetween: PropTypes.bool,
   centerItems: PropTypes.bool,
+  flexEnd: PropTypes.bool,
 }
 Flex.defaultProps = {
   style: {},

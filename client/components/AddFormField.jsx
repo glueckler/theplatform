@@ -122,84 +122,83 @@ class FieldSelector extends PureComponent {
   render() {
     return (
       <div>
-        {/*   *   *   *   */}
-        {/* Field Type Select Buttons */}
-        {Object.values(this.FIELDS).map(fieldName => (
-          <Button
-            key={fieldName}
-            primary={this.state.inputType === fieldName}
-            onClick={() => {
-              this.setState({
-                inputType: fieldName,
-              })
-            }}
-            onMouseOver={e => {
-              this.setState({ inputTypePreview: fieldName })
-            }}
-          >
-            {fieldName}
-          </Button>
-        ))}
-        {/*   *   *   *   */}
-        {/* Field Name  */}
-        <Text variant="h4">Field Name</Text>
-        <TextInput
-          name="label"
-          value={this.state.fieldMetadata.label}
-          onChange={this.handleMetadataTextInput}
-          placeholder="Field Name"
-        />
-        {[this.FIELDS.SELECT, this.FIELDS.RADIO, this.FIELDS.CHECKBOX].includes(
-          this.state.inputType
-        ) && (
-          <>
-            {/*   *   *   *   */}
-            {/* Field Options  */}
-            <Text variant="h4">Field Options</Text>
-            {this.state.fieldMetadata.options.map((fieldOption, index) => {
-              const onChange = (() => {
-                if (!this.optionsOnChangeCache[index]) {
-                  this.optionsOnChangeCache[index] = this.optionsOnChange(index)
-                }
-                return this.optionsOnChangeCache[index]
-              })()
+        <div
+          style={{
+            maxHeight: '300px',
+            overflowY: 'scroll',
+            borderBottom: '1px solid #afafaf',
+          }}
+        >
+          {/*   *   *   *   */}
+          {/* Field Type Select Buttons */}
+          {Object.values(this.FIELDS).map(fieldName => (
+            <Button
+              key={fieldName}
+              primary={this.state.inputType === fieldName}
+              onClick={() => {
+                this.setState({
+                  inputType: fieldName,
+                })
+              }}
+              onMouseOver={e => {
+                this.setState({ inputTypePreview: fieldName })
+              }}
+            >
+              {fieldName}
+            </Button>
+          ))}
+          {/*   *   *   *   */}
+          {/* Field Name  */}
+          <Text variant="h4">Field Name</Text>
+          <TextInput
+            name="label"
+            value={this.state.fieldMetadata.label}
+            onChange={this.handleMetadataTextInput}
+            placeholder="Field Name"
+          />
+          {[
+            this.FIELDS.SELECT,
+            this.FIELDS.RADIO,
+            this.FIELDS.CHECKBOX,
+          ].includes(this.state.inputType) && (
+            <>
+              {/*   *   *   *   */}
+              {/* Field Options  */}
+              <Text variant="h4">Field Options</Text>
+              {this.state.fieldMetadata.options.map((fieldOption, index) => {
+                const onChange = (() => {
+                  if (!this.optionsOnChangeCache[index]) {
+                    this.optionsOnChangeCache[index] = this.optionsOnChange(
+                      index
+                    )
+                  }
+                  return this.optionsOnChangeCache[index]
+                })()
 
-              return (
-                <Text
-                  key={fieldOption}
-                  editable
-                  placeholder="enter new field"
-                  content={fieldOption}
-                  onChange={onChange}
-                />
-              )
-            })}
-          </>
-        )}
+                return (
+                  <Text
+                    key={fieldOption}
+                    editable
+                    placeholder="enter new field"
+                    content={fieldOption}
+                    onChange={onChange}
+                  />
+                )
+              })}
+            </>
+          )}
+        </div>
         {/*   *   *   *   */}
         {/* Preview */}
-        {(() => {
-          if (!S.Preview) {
-            S.Preview = styled.div`
-              margin-top: 50px;
-              border-top: 1px solid #afafaf;
-            `
-          }
-          return (
-            <S.Preview>
-              <Text variant="h3">Preview..</Text>
-              <div style={{ minHeight: '90px' }}>
-                <FormField
-                  field={{
-                    inputType:
-                      this.state.inputType || this.state.inputTypePreview,
-                    ...this.state.fieldMetadata,
-                  }}
-                />
-              </div>
-            </S.Preview>
-          )
-        })()}
+        <Text variant="h3">Preview..</Text>
+        <div style={{ minHeight: '90px' }}>
+          <FormField
+            field={{
+              inputType: this.state.inputType || this.state.inputTypePreview,
+              ...this.state.fieldMetadata,
+            }}
+          />
+        </div>
       </div>
     )
   }
