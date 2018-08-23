@@ -7,13 +7,13 @@ import Flex from 'components/Flex'
 import Button from 'components/Button'
 import AddFormField from 'components/AddFormField'
 import FormField from 'components/FormField'
+import Modal from 'components/Modal'
+import TextInput from 'components/TextInput'
 
 class FormEditor extends Component {
   constructor(props) {
     super(props)
-    // set to empty obj so lookup values are undefined instead of null
-    // will not be necessary once state isn't used after testing purposes
-    this.state = {}
+
     this.setEl = props.setEl
 
     this.setEl({
@@ -67,6 +67,7 @@ class FormEditor extends Component {
           position: 4,
         },
       ],
+      formFieldEdit: {},
     })
 
     this.handleInitializeAddFieldSelector = this.handleInitializeAddFieldSelector.bind(
@@ -76,6 +77,9 @@ class FormEditor extends Component {
       this
     )
     this.handleAddFieldSave = this.handleAddFieldSave.bind(this)
+    this.handleEditField = this.handleEditField.bind(this)
+    this.handleUpdateEditField = this.handleUpdateEditField.bind(this)
+    this.handleDeleteField = this.handleDeleteField.bind(this)
   }
 
   // this is the callback that receives the FieldSelector node and places it in a modal
@@ -87,7 +91,7 @@ class FormEditor extends Component {
       buttons: (
         <>
           <Button
-            disabled={!this.isAddFieldSaveEnabled()}
+            disabled={!this.isFieldMetadataSaveEnabled()}
             onClick={this.handleAddFieldSave}
           >
             save
@@ -108,7 +112,7 @@ class FormEditor extends Component {
       buttons: (
         <>
           <Button
-            disabled={!this.isAddFieldSaveEnabled(fieldMetadata)}
+            disabled={!this.isFieldMetadataSaveEnabled(fieldMetadata)}
             onClick={this.handleAddFieldSave}
           >
             save
@@ -118,10 +122,17 @@ class FormEditor extends Component {
     })
   }
 
-  isAddFieldSaveEnabled(metadata) {
+  isFieldMetadataSaveEnabled(metadata) {
     const meta = metadata?.fieldMetadata
     const inputType = metadata?.inputType
+
     if (!meta || !inputType) {
+      return false
+    }
+    if (meta.label === '') {
+      return false
+    }
+    if (meta.options && meta.options.indexOf('') !== -1) {
       return false
     }
     return true
@@ -130,7 +141,7 @@ class FormEditor extends Component {
   handleAddFieldSave() {
     const meta = this.props.el.newFormFieldMetadata.fieldMetadata
     const inputType = this.props.el.newFormFieldMetadata.inputType
-    if (!this.isAddFieldSaveEnabled(this.props.el.newFormFieldMetadata)) {
+    if (!this.isFieldMetadataSaveEnabled(this.props.el.newFormFieldMetadata)) {
       console.error('insufficient data to create form field')
       return
     }
@@ -153,9 +164,113 @@ class FormEditor extends Component {
     })
   }
 
+  // to set up the modal initially, when edit is requested
+  handleEditField(id) {
+    // pick out the form field..
+    const formField = this.props.el.formFields.find(
+      field => field.formID === id
+    )
+
+    // create the RAM edit object
+    this.setEl({
+      formFieldEdit: { ...formField },
+    })
+    this.handleUpdateEditField(formField)
+  }
+
+  handleUpdateEditField(field, reset) {
+    // if reset flag is passed we are done editing
+    if (reset) {
+      this.setEl({
+        modal: null,
+        formFieldEdit: {},
+      })
+      return
+    }
+
+    const content = (
+      <>
+        <Text variant="h4">Field Label</Text>
+        <TextInput
+          placeholder="Field Label"
+          value={field.label}
+          onChange={e => {
+            const nextFormFieldEdit = {
+              ...this.props.el.formFieldEdit,
+              label: e.target.value,
+            }
+            this.handleUpdateEditField(nextFormFieldEdit)
+          }}
+        />
+      </>
+    )
+
+    this.setEl({
+      modal: {
+        content,
+        header: <>Edit Field</>,
+        open: true,
+        buttons: (
+          <>
+            <Button
+              disabled={
+                !this.isFieldMetadataSaveEnabled({
+                  // this shape is what's expected by isFieldMetadataSaveEnabled..
+                  fieldMetadata: field,
+                  inputType: field?.inputType,
+                })
+              }
+              onClick={() => {
+                this.handleUpdateEditField({}, 'reset :)')
+                this.handleSaveEditField(field)
+              }}
+            >
+              save
+            </Button>
+            <Button
+              onClick={() => {
+                this.setEl({
+                  modal: null,
+                  formFieldEdit: {},
+                })
+              }}
+              link
+            >
+              cancel
+            </Button>
+          </>
+        ),
+      },
+    })
+  }
+
+  handleSaveEditField(metadata) {
+    const fieldIndex = this.props.el.formFields.findIndex(
+      field => field.formID === metadata.formID
+    )
+    const nextFormFields = [...this.props.el.formFields]
+    nextFormFields.splice(fieldIndex, 1, metadata)
+
+    this.setEl({ formFields: nextFormFields })
+  }
+
+  handleDeleteField(id) {
+    this.setEl({
+      formFields: (() => {
+        const fieldIndex = this.props.el.formFields.findIndex(
+          field => field.formID === id
+        )
+        const nextFormFields = [...this.props.el.formFields]
+        nextFormFields.splice(fieldIndex, 1)
+        return nextFormFields
+      })(),
+    })
+  }
+
   render() {
     return (
       <>
+        <Modal {...this.props.el.modal} />
         <div
           style={{ width: '100vw', display: 'flex', justifyContent: 'center' }}
         >
@@ -195,8 +310,21 @@ class FormEditor extends Component {
                       right: '0',
                     }}
                   >
-                    <Button link>Edit</Button>
-                    <Button link danger>
+                    <Button
+                      link
+                      onClick={() => {
+                        this.handleEditField(field.formID)
+                      }}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        this.handleDeleteField(field.formID)
+                      }}
+                      link
+                      danger
+                    >
                       Delete
                     </Button>
                   </Flex>
@@ -222,10 +350,12 @@ FormEditor.propTypes = {
     formTitle: PropTypes.string,
     addFieldModalOpen: PropTypes.bool,
     formFields: PropTypes.array,
+    formFieldEdit: PropTypes.shape({}),
     newFormFieldMetaData: PropTypes.shape({
       fieldMetadata: PropTypes.shape({}),
       inputType: PropTypes.string,
     }),
+    modal: PropTypes.shape({}),
   }).isRequired,
 }
 FormEditor.defaultProps = {}
@@ -237,6 +367,7 @@ const mapDispath = dispatch => ({
   setEl: state => {
     dispatch({ type: 'FORM_EDITOR_SET_STATE', state })
   },
+  // this is not relate to this.props.el.modal (this sets the app modal)
   setModal: state => {
     dispatch({ type: 'MODAL_SET_STATE', state })
   },

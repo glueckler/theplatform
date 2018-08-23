@@ -1,33 +1,36 @@
-import React from 'react'
+import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 
 import classNames from 'classnames'
 
-const Button = ({ style, link, small, primary, danger, ...props }) => {
-  const moreProps = { ...props, type: 'button' } // adding type="button" prevents page reload on click
-  if (link) {
+class Button extends PureComponent {
+  render() {
+    const { style, link, small, primary, danger, ...props } = this.props
+    const moreProps = { ...props, type: 'button' } // adding type="button" prevents page reload on click
+    if (link) {
+      return (
+        <button
+          {...moreProps}
+          className={classNames('btn btn-link', { ['btn-sm']: small })}
+          style={{
+            ...style,
+            // if the danger prop is passed the color will be added to style
+            ...(danger ? { color: '#C92100' } : {}),
+          }}
+        />
+      )
+    }
     return (
       <button
         {...moreProps}
-        className={classNames('btn btn-link', { ['btn-sm']: small })}
-        style={{
-          ...style,
-          // if the danger prop is passed the color will be added to style
-          ...(danger ? { color: '#C92100' } : {}),
-        }}
+        className={classNames(
+          'btn',
+          { ['btn-primary']: primary },
+          { ['btn-sm']: small }
+        )}
       />
     )
   }
-  return (
-    <button
-      {...moreProps}
-      className={classNames(
-        'btn',
-        { ['btn-primary']: primary },
-        { ['btn-sm']: small }
-      )}
-    />
-  )
 }
 
 Button.propTypes = {
