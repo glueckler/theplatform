@@ -56,9 +56,14 @@ class FieldSelector extends PureComponent {
         fieldMetadata: {
           ...this.state.fieldMetadata,
           options: (() => {
-            const options = this.state.fieldMetadata.options
-            options.splice(index, 1, e.target.value)
-            return [...options]
+            const nextOptions = [...this.state.fieldMetadata.options]
+            if (e.target.value === '') {
+              // delete from array if it's empty
+              nextOptions.splice(index, 1)
+            } else {
+              nextOptions.splice(index, 1, e.target.value)
+            }
+            return nextOptions
           })(),
         },
       })
@@ -166,6 +171,7 @@ class FieldSelector extends PureComponent {
               {/* Field Options  */}
               <Text variant="h4">Field Options</Text>
               {this.state.fieldMetadata.options.map((fieldOption, index) => {
+                // use a cached onChange bank for crazy performance benefits
                 const onChange = (() => {
                   if (!this.optionsOnChangeCache[index]) {
                     this.optionsOnChangeCache[index] = this.optionsOnChange(
@@ -176,13 +182,38 @@ class FieldSelector extends PureComponent {
                 })()
 
                 return (
-                  <Text
-                    key={fieldOption}
-                    editable
-                    placeholder="enter new field"
-                    content={fieldOption}
-                    onChange={onChange}
-                  />
+                  <React.Fragment key={fieldOption}>
+                    <Text>Field Option {index + 1}</Text>
+                    <Text
+                      editable
+                      placeholder="enter new field"
+                      content={fieldOption}
+                      onChange={onChange}
+                    />
+                    <Text>Add Field Option</Text>
+                    <Text
+                      editable
+                      placeholder="enter new field"
+                      content={''}
+                      onChange={e => {
+                        const value = e.target.value
+                        if (value !== '') {
+                          this.setState({
+                            fieldMetadata: {
+                              ...this.state.fieldMetadata,
+                              options: (() => {
+                                const nextOptions = [
+                                  ...this.state.fieldMetadata.options,
+                                ]
+                                nextOptions.splice(index + 1, 0, e.target.value)
+                                return nextOptions
+                              })(),
+                            },
+                          })
+                        }
+                      }}
+                    />
+                  </React.Fragment>
                 )
               })}
             </>

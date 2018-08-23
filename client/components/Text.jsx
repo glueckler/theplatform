@@ -11,7 +11,7 @@ class Text extends Component {
   constructor(props) {
     super(props)
 
-    if (props.editable && !props.content) {
+    if (props.editable && !props.content && props.content !== '') {
       console.error(
         "WARNING: if content prop isn't supplied to editable Text component it will not function as expected"
       )
@@ -134,6 +134,8 @@ class Text extends Component {
       })
       this.setState({
         active: false,
+        // and reset the initial content to it's new life
+        initialContent: this.contentRef.current.innerText,
       })
       e.preventDefault()
     }

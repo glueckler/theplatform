@@ -202,6 +202,59 @@ class FormEditor extends Component {
             this.handleUpdateEditField(nextFormFieldEdit)
           }}
         />
+        <Text variant="h4">Field Options</Text>
+        {field.options.map((fieldOption, index) => {
+          return (
+            <React.Fragment key={fieldOption}>
+              <Text>Field Option {index + 1}</Text>
+              <Text
+                editable
+                placeholder="enter new field"
+                content={fieldOption}
+                onChange={e => {
+                  const nextFormFieldEdit = {
+                    ...this.props.el.formFieldEdit,
+                    options: (() => {
+                      const nextOptions = [
+                        ...this.props.el.formFieldEdit.options,
+                      ]
+                      if (e.target.value === '') {
+                        // delete from array if it's empty
+                        nextOptions.splice(index, 1)
+                      } else {
+                        nextOptions.splice(index, 1, e.target.value)
+                      }
+                      return nextOptions
+                    })(),
+                  }
+                  this.handleUpdateEditField(nextFormFieldEdit)
+                }}
+              />
+              <Text>Add Field Option</Text>
+              <Text
+                editable
+                placeholder="enter new field"
+                content={''}
+                onChange={e => {
+                  const value = e.target.value
+                  if (value !== '') {
+                    const nextFormFieldEdit = {
+                      ...this.props.el.formFieldEdit,
+                      options: (() => {
+                        const nextOptions = [
+                          ...this.props.el.formFieldEdit.options,
+                        ]
+                        nextOptions.splice(index + 1, 0, e.target.value)
+                        return nextOptions
+                      })(),
+                    }
+                    this.handleUpdateEditField(nextFormFieldEdit)
+                  }
+                }}
+              />
+            </React.Fragment>
+          )
+        })}
       </>
     )
 
