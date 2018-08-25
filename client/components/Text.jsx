@@ -1,11 +1,17 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
+import styled from 'styled-components'
 import Y from 'yoots'
 import classNames from 'classnames'
 import { diff } from 'deep-diff'
 
-let stripNbsp = str => str.replace(/&nbsp;|\u202F|\u00A0/g, ' ')
+const stripNbsp = str => str.replace(/&nbsp;|\u202F|\u00A0/g, ' ')
+
+// styled component cache
+// inputs is what we'll call the type of text element rendered ie h2, p, h3 etc
+// it's unlikely anything else will be styled here, but other styled inputs would live in the outer obj
+const S = { inputs: {} }
 
 class Text extends Component {
   constructor(props) {
@@ -32,7 +38,7 @@ class Text extends Component {
     // set up shouldComponentUpdate only if it's editable..
     if (props.editable) {
       this.shouldComponentUpdate = (nextProps, nextState) => {
-        let { props, state, contentRef } = this
+        const { props, state, contentRef } = this
 
         // Rerender if there is no element yet... (somehow?)
         if (!contentRef.current) {
@@ -57,7 +63,7 @@ class Text extends Component {
           return true
         }
 
-        let optional = ['styles', 'className', 'variant']
+        const optional = ['styles', 'className', 'variant']
 
         // Handle additional properties
         return optional.some(name => !!diff(props[name], nextProps[name]))
@@ -144,7 +150,7 @@ class Text extends Component {
   handleOnInput(event) {
     if (!this.contentRef.current) return
 
-    let newText = this.contentRef.current.innerText
+    const newText = this.contentRef.current.innerText
 
     this.handlePlaceholder(newText)
 
@@ -192,34 +198,42 @@ class Text extends Component {
       variant,
       zeroMargin,
       editable,
-      content,
-      className,
-      style,
       placeholder,
-      ...props
+      style,
+      fullWidth,
+      underline,
+      ...innerElementProps
     } = this.props
+
+    const outerElementProps = { ...innerElementProps }
 
     let RenderAs = 'p'
     if (Y.isString(variant) && Y.startsWith('h', variant)) {
       RenderAs = variant
     }
 
-    // although line height may still mess with alignment
-    if (zeroMargin) {
-      style = { ...style } || {}
-      style.margin = 0
+    // create cached styled component based on RenderAs
+    if (!S.inputs[RenderAs]) {
+      S.inputs[RenderAs] = styled[RenderAs]`
+        ${zeroMargin ? 'margin: 0' : ''};
+        width: 100%;
+        &:focus {
+          outline: none;
+        }
+      `
     }
 
-    props = {
-      ...props,
-      className: classNames(variant, className),
-      style: { ...style, minWidth: '20px' },
+    RenderAs = S.inputs[RenderAs]
+
+    innerElementProps = {
+      ...innerElementProps,
+      className: variant,
     }
 
     if (editable) {
-      props.onInput = this.handleOnInput
-      props.onKeyDown = this.handleKeyDown
-      props.onBlur = e => {
+      innerElementProps.onInput = this.handleOnInput
+      innerElementProps.onKeyDown = this.handleKeyDown
+      innerElementProps.onBlur = e => {
         this.setState({
           active: false,
         })
@@ -227,7 +241,7 @@ class Text extends Component {
           this.props.onBlur()
         }
       }
-      props.onFocus = e => {
+      innerElementProps.onFocus = e => {
         this.setState({
           active: true,
         })
@@ -235,7 +249,7 @@ class Text extends Component {
           this.props.onFocus()
         }
       }
-      props.onClick = e => {
+      innerElementProps.onClick = e => {
         this.setState({
           active: true,
         })
@@ -243,40 +257,81 @@ class Text extends Component {
           this.props.onClick()
         }
       }
-      props.ref = this.contentRef
-      props.contentEditable = true
-      props.children = null
+      innerElementProps.innerRef = this.contentRef
+      innerElementProps.contentEditable = true
+      innerElementProps.children = null
     }
 
-    const textOut = <RenderAs {...props} />
+    const textOut = <RenderAs {...innerElementProps} />
 
-    if (this.state.showPlaceholder) {
-      return (
-        <div
-          style={{ position: 'relative', minWidth: '200px', overflow: 'auto' }}
-        >
-          {textOut}
+    // if it's not editable just send it
+    if (!editable) return textOut
+
+    // this return is only relevant if it's contenteditable
+    return (
+      <div
+        style={{
+          position: 'relative',
+          width: `${fullWidth ? '100%' : '160px'}`,
+          overflow: 'hidden',
+          cursor: 'text',
+          ...style,
+        }}
+        {...outerElementProps}
+      >
+        {textOut}
+        {this.state.showPlaceholder && (
           <RenderAs
             style={{
-              ...props.style,
               position: 'absolute',
               left: '0',
-              top: '0',
+              bottom: '0',
             }}
             onClick={() => {
               this.setState({
                 active: true,
               })
             }}
-            className={props.className}
+            className={innerElementProps.className}
           >
             {placeholder}
           </RenderAs>
+        )}
+        {/* underline div */}
+        <div
+          style={{
+            position: 'absolute',
+            left: '0',
+            bottom: '0',
+            height: '2px',
+            width: '100%',
+          }}
+        >
+          {this.props.underline && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '0',
+                width: '100%',
+                height: '1px',
+                backgroundColor: '#9a9a9a',
+                transition: 'all .2s ease',
+              }}
+            />
+          )}
+          <div
+            style={{
+              position: 'absolute',
+              top: '0',
+              height: '2px',
+              backgroundColor: '#0094d2',
+              transition: 'all .2s ease',
+              width: `${this.state.active ? '100%' : '0'}`,
+            }}
+          />
         </div>
-      )
-    }
-
-    return textOut
+      </div>
+    )
   }
 }
 
@@ -287,6 +342,12 @@ Text.propTypes = {
   zeroMargin: PropTypes.bool,
   editable: PropTypes.bool,
   onChange: PropTypes.func,
+  placeholder: PropTypes.string,
+  onClick: PropTypes.func,
+  onFocus: PropTypes.func,
+  onBlur: PropTypes.func,
+  fullWidth: PropTypes.bool,
+  underline: PropTypes.bool,
 }
 Text.defaultProps = {
   className: null,

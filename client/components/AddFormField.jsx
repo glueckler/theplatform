@@ -24,9 +24,6 @@ const AddFieldBar = styled.div`
   }
 `
 
-// cache for styled components
-const S = {}
-
 //
 // This component is returned when it is requested and will go on to live a life of its own
 //
@@ -49,26 +46,6 @@ class FieldSelector extends PureComponent {
       inputTypePreview: this.FIELDS.SELECT,
       inputType: null,
     }
-
-    // fieldMetadata options onChange
-    this.optionsOnChange = index => e => {
-      this.setState({
-        fieldMetadata: {
-          ...this.state.fieldMetadata,
-          options: (() => {
-            const nextOptions = [...this.state.fieldMetadata.options]
-            if (e.target.value === '') {
-              // delete from array if it's empty
-              nextOptions.splice(index, 1)
-            } else {
-              nextOptions.splice(index, 1, e.target.value)
-            }
-            return nextOptions
-          })(),
-        },
-      })
-    }
-    this.optionsOnChangeCache = []
 
     this.handleMetadataTextInput = this.handleMetadataTextInput.bind(this)
     this.handleOnSave = this.handleOnSave.bind(this)
@@ -131,7 +108,8 @@ class FieldSelector extends PureComponent {
           style={{
             maxHeight: '300px',
             overflowY: 'scroll',
-            borderBottom: '1px solid #afafaf',
+            borderBottom: '1px solid #9a9a9a',
+            paddingBottom: '22px',
           }}
         >
           {/*   *   *   *   */}
@@ -154,8 +132,9 @@ class FieldSelector extends PureComponent {
           ))}
           {/*   *   *   *   */}
           {/* Field Name  */}
-          <Text variant="h4">Field Name</Text>
+          <Text variant="h4">Field Options</Text>
           <TextInput
+            label="Field Name"
             name="label"
             value={this.state.fieldMetadata.label}
             onChange={this.handleMetadataTextInput}
@@ -169,31 +148,49 @@ class FieldSelector extends PureComponent {
             <>
               {/*   *   *   *   */}
               {/* Field Options  */}
-              <Text variant="h4">Field Options</Text>
               {this.state.fieldMetadata.options.map((fieldOption, index) => {
-                // use a cached onChange bank for crazy performance benefits
-                const onChange = (() => {
-                  if (!this.optionsOnChangeCache[index]) {
-                    this.optionsOnChangeCache[index] = this.optionsOnChange(
-                      index
-                    )
-                  }
-                  return this.optionsOnChangeCache[index]
-                })()
-
                 return (
-                  <React.Fragment key={fieldOption}>
-                    <Text>Field Option {index + 1}</Text>
-                    <Text
-                      editable
-                      placeholder="enter new field"
-                      content={fieldOption}
-                      onChange={onChange}
+                  // using the index as a key looks terrible but it's safe since the index is consitent
+                  <React.Fragment key={index}>
+                    <TextInput
+                      label={`Option ${index + 1}`}
+                      placeholder={`delete field (empty)`}
+                      value={fieldOption}
+                      onChange={e => {
+                        this.setState({
+                          fieldMetadata: {
+                            ...this.state.fieldMetadata,
+                            options: (() => {
+                              const nextOptions = [
+                                ...this.state.fieldMetadata.options,
+                              ]
+                              nextOptions.splice(index, 1, e.target.value)
+                              return nextOptions
+                            })(),
+                          },
+                        })
+                      }}
+                      onBlur={e => {
+                        this.setState({
+                          fieldMetadata: {
+                            ...this.state.fieldMetadata,
+                            options: (() => {
+                              const nextOptions = [
+                                ...this.state.fieldMetadata.options,
+                              ]
+                              if (e.target.value === '') {
+                                // delete from array if it's empty
+                                nextOptions.splice(index, 1)
+                              }
+                              return nextOptions
+                            })(),
+                          },
+                        })
+                      }}
                     />
-                    <Text>Add Field Option</Text>
                     <Text
                       editable
-                      placeholder="enter new field"
+                      placeholder="+ Click to Add Option"
                       content={''}
                       onChange={e => {
                         const value = e.target.value

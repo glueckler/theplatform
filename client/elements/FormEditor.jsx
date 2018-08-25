@@ -190,8 +190,8 @@ class FormEditor extends Component {
 
     const content = (
       <>
-        <Text variant="h4">Field Label</Text>
         <TextInput
+          label="Field Label"
           placeholder="Field Label"
           value={field.label}
           onChange={e => {
@@ -206,18 +206,15 @@ class FormEditor extends Component {
         {field.options.map((fieldOption, index) => {
           return (
             <React.Fragment key={fieldOption}>
-              <Text>Field Option {index + 1}</Text>
               <Text
                 editable
-                placeholder="enter new field"
+                placeholder="Delete (empty option)"
                 content={fieldOption}
                 onChange={e => {
                   const nextFormFieldEdit = {
-                    ...this.props.el.formFieldEdit,
+                    ...field,
                     options: (() => {
-                      const nextOptions = [
-                        ...this.props.el.formFieldEdit.options,
-                      ]
+                      const nextOptions = [...field.options]
                       if (e.target.value === '') {
                         // delete from array if it's empty
                         nextOptions.splice(index, 1)
@@ -229,21 +226,19 @@ class FormEditor extends Component {
                   }
                   this.handleUpdateEditField(nextFormFieldEdit)
                 }}
+                underline
               />
-              <Text>Add Field Option</Text>
               <Text
                 editable
-                placeholder="enter new field"
-                content={''}
+                placeholder="+ add option"
+                content=""
                 onChange={e => {
                   const value = e.target.value
                   if (value !== '') {
                     const nextFormFieldEdit = {
-                      ...this.props.el.formFieldEdit,
+                      ...field,
                       options: (() => {
-                        const nextOptions = [
-                          ...this.props.el.formFieldEdit.options,
-                        ]
+                        const nextOptions = [...field.options]
                         nextOptions.splice(index + 1, 0, e.target.value)
                         return nextOptions
                       })(),
@@ -341,9 +336,9 @@ class FormEditor extends Component {
                       formTitle: e.target.value,
                     })
                   }}
-                  zeroMargin
                   variant="h3"
-                  style={{ lineHeight: '2rem' }}
+                  underline
+                  fullWidth
                 />
               )}
             </Flex>
@@ -403,7 +398,9 @@ FormEditor.propTypes = {
     formTitle: PropTypes.string,
     addFieldModalOpen: PropTypes.bool,
     formFields: PropTypes.array,
-    formFieldEdit: PropTypes.shape({}),
+    formFieldEdit: PropTypes.shape({
+      options: PropTypes.array,
+    }),
     newFormFieldMetaData: PropTypes.shape({
       fieldMetadata: PropTypes.shape({}),
       inputType: PropTypes.string,
