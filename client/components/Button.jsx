@@ -6,7 +6,8 @@ import classNames from 'classnames'
 class Button extends PureComponent {
   render() {
     const { style, link, small, primary, danger, ...props } = this.props
-    const moreProps = { ...props, type: 'button' } // adding type="button" prevents page reload on click
+    // adding type="button" prevents page reload on click
+    const moreProps = { ...props, type: 'button' }
     if (link) {
       return (
         <button
@@ -26,6 +27,7 @@ class Button extends PureComponent {
         className={classNames(
           'btn',
           { ['btn-primary']: primary },
+          { ['btn-danger']: danger },
           { ['btn-sm']: small }
         )}
       />

@@ -11,6 +11,22 @@ import Modal from 'components/Modal'
 import TextInput from 'components/TextInput'
 
 class FormEditor extends Component {
+  static isFieldMetadataSaveEnabled(metadata) {
+    const meta = metadata?.fieldMetadata
+    const inputType = metadata?.inputType
+
+    if (!meta || !inputType) {
+      return false
+    }
+    if (meta.label === '') {
+      return false
+    }
+    if (meta.options && meta.options.indexOf('') !== -1) {
+      return false
+    }
+    return true
+  }
+
   constructor(props) {
     super(props)
 
@@ -83,16 +99,27 @@ class FormEditor extends Component {
   }
 
   // this is the callback that receives the FieldSelector node and places it in a modal
-  handleInitializeAddFieldSelector(FieldSelector) {
+  handleInitializeAddFieldSelector(
+    FieldSelector,
+    index = this.props.el.formFields.length + 1
+  ) {
     this.props.setModal({
       header: <>Choose Custom Form Field</>,
       open: true,
-      content: <FieldSelector onChange={this.handleAddFieldSelectorOnChange} />,
+      content: (
+        <FieldSelector
+          onChange={fieldMetadata => {
+            this.handleAddFieldSelectorOnChange(fieldMetadata, index)
+          }}
+        />
+      ),
       buttons: (
         <>
           <Button
-            disabled={!this.isFieldMetadataSaveEnabled()}
-            onClick={this.handleAddFieldSave}
+            disabled={!FormEditor.isFieldMetadataSaveEnabled()}
+            onClick={e => {
+              this.handleAddFieldSave(e, index)
+            }}
           >
             save
           </Button>
@@ -102,7 +129,7 @@ class FormEditor extends Component {
   }
 
   // called any time the state is changed within the FieldSelector component
-  handleAddFieldSelectorOnChange(fieldMetadata) {
+  handleAddFieldSelectorOnChange(fieldMetadata, index) {
     this.setEl({
       newFormFieldMetadata: fieldMetadata,
     })
@@ -112,8 +139,10 @@ class FormEditor extends Component {
       buttons: (
         <>
           <Button
-            disabled={!this.isFieldMetadataSaveEnabled(fieldMetadata)}
-            onClick={this.handleAddFieldSave}
+            disabled={!FormEditor.isFieldMetadataSaveEnabled(fieldMetadata)}
+            onClick={e => {
+              this.handleAddFieldSave(e, index)
+            }}
           >
             save
           </Button>
@@ -122,29 +151,24 @@ class FormEditor extends Component {
     })
   }
 
-  isFieldMetadataSaveEnabled(metadata) {
-    const meta = metadata?.fieldMetadata
-    const inputType = metadata?.inputType
-
-    if (!meta || !inputType) {
-      return false
-    }
-    if (meta.label === '') {
-      return false
-    }
-    if (meta.options && meta.options.indexOf('') !== -1) {
-      return false
-    }
-    return true
-  }
-
-  handleAddFieldSave() {
+  handleAddFieldSave(_, index) {
+    // TODO: asdf (dean)
     const meta = this.props.el.newFormFieldMetadata.fieldMetadata
     const inputType = this.props.el.newFormFieldMetadata.inputType
-    if (!this.isFieldMetadataSaveEnabled(this.props.el.newFormFieldMetadata)) {
+    if (
+      !FormEditor.isFieldMetadataSaveEnabled(this.props.el.newFormFieldMetadata)
+    ) {
       console.error('insufficient data to create form field')
       return
     }
+
+    // TODO:dean
+    // find the field with index and add one to it
+    // then update all other fields and add one to their position
+    // that's a lot of code...
+    // maybe just set it up so el.formFields is guaranteed to be sorted based on position
+    // then figure your life out..
+
     this.setEl({
       formFields: [
         ...this.props.el.formFields,
@@ -152,7 +176,7 @@ class FormEditor extends Component {
           // the data coming from the FieldSelector (ie meta, and inputType) should have consistent key names
           ...meta,
           inputType,
-          position: 4,
+          position: index,
         },
       ],
       newFormFieldMetadata: {},
@@ -262,7 +286,7 @@ class FormEditor extends Component {
           <>
             <Button
               disabled={
-                !this.isFieldMetadataSaveEnabled({
+                !FormEditor.isFieldMetadataSaveEnabled({
                   // this shape is what's expected by isFieldMetadataSaveEnabled..
                   fieldMetadata: field,
                   inputType: field?.inputType,
@@ -313,6 +337,7 @@ class FormEditor extends Component {
         return nextFormFields
       })(),
     })
+    this.props.setModal({ open: false })
   }
 
   render() {
@@ -345,38 +370,65 @@ class FormEditor extends Component {
             {/* Form Fields */}
             {/* -   -   -   -   -   - */}
             <form>
-              {(this.props.el.formFields || []).map(field => (
-                <div style={{ position: 'relative' }} key={field.formID}>
-                  <FormField field={field} />
-                  <Flex
-                    flexEnd
-                    style={{
-                      position: 'absolute',
-                      top: '0',
-                      bottom: '0',
-                      left: '0',
-                      right: '0',
-                    }}
+              {(this.props.el.formFields || []).map((field, index) => (
+                <React.Fragment key={field.formID}>
+                  <AddFormField
+                    onReceiveFieldSelector={
+                      this.handleInitializeAddFieldSelector
+                    }
+                    style={{ marginTop: '15px' }}
+                    position={index}
                   >
-                    <Button
-                      link
-                      onClick={() => {
-                        this.handleEditField(field.formID)
+                    + add
+                  </AddFormField>
+                  <div style={{ position: 'relative' }}>
+                    <FormField field={field} />
+                    <Flex
+                      flexEnd
+                      style={{
+                        position: 'absolute',
+                        top: '0',
+                        bottom: '0',
+                        left: '0',
+                        right: '0',
                       }}
                     >
-                      Edit
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        this.handleDeleteField(field.formID)
-                      }}
-                      link
-                      danger
-                    >
-                      Delete
-                    </Button>
-                  </Flex>
-                </div>
+                      <Button
+                        link
+                        onClick={() => {
+                          this.handleEditField(field.formID)
+                        }}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          this.props.setModal({
+                            header: <>Delete "{field.label}"</>,
+                            open: true,
+                            content: <Text>Are you sure?</Text>,
+                            buttons: (
+                              <>
+                                <Button
+                                  danger
+                                  onClick={() => {
+                                    this.handleDeleteField(field.formID)
+                                  }}
+                                >
+                                  delete
+                                </Button>
+                              </>
+                            ),
+                          })
+                        }}
+                        link
+                        danger
+                      >
+                        Delete
+                      </Button>
+                    </Flex>
+                  </div>
+                </React.Fragment>
               ))}
             </form>
             {/* Add Field Button */}
@@ -384,7 +436,10 @@ class FormEditor extends Component {
             <AddFormField
               visible
               onReceiveFieldSelector={this.handleInitializeAddFieldSelector}
-            />
+              style={{ marginTop: '20px' }}
+            >
+              + add form field
+            </AddFormField>
           </div>
         </div>
       </>
@@ -401,7 +456,7 @@ FormEditor.propTypes = {
     formFieldEdit: PropTypes.shape({
       options: PropTypes.array,
     }),
-    newFormFieldMetaData: PropTypes.shape({
+    newFormFieldMetadata: PropTypes.shape({
       fieldMetadata: PropTypes.shape({}),
       inputType: PropTypes.string,
     }),

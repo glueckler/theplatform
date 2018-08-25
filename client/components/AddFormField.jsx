@@ -151,10 +151,11 @@ class FieldSelector extends PureComponent {
               {this.state.fieldMetadata.options.map((fieldOption, index) => {
                 return (
                   // using the index as a key looks terrible but it's safe since the index is consitent
+                  // eslint-disable-next-line react/no-array-index-key
                   <React.Fragment key={index}>
                     <TextInput
                       label={`Option ${index + 1}`}
-                      placeholder={`delete field (empty)`}
+                      placeholder="delete field (empty)"
                       value={fieldOption}
                       onChange={e => {
                         this.setState({
@@ -191,7 +192,7 @@ class FieldSelector extends PureComponent {
                     <Text
                       editable
                       placeholder="+ Click to Add Option"
-                      content={''}
+                      content=""
                       onChange={e => {
                         const value = e.target.value
                         if (value !== '') {
@@ -243,7 +244,7 @@ class AddFormField extends PureComponent {
 
   handleAddField() {
     if (this.props.onReceiveFieldSelector) {
-      this.props.onReceiveFieldSelector(FieldSelector)
+      this.props.onReceiveFieldSelector(FieldSelector, this.props.position)
     }
   }
 
@@ -252,8 +253,9 @@ class AddFormField extends PureComponent {
       <AddFieldBar
         onClick={this.handleAddField}
         {...pick(this.props, ['visible'])}
+        style={{ ...this.props.style }}
       >
-        Add Form Field
+        {this.props.children}
       </AddFieldBar>
       // <DropDown open={this.state.open}>
       //   This is the dropdown
@@ -264,6 +266,12 @@ class AddFormField extends PureComponent {
 
 AddFormField.propTypes = {
   onReceiveFieldSelector: PropTypes.func.isRequired,
+  style: PropTypes.shape({}),
+  children: PropTypes.node,
+  //
+  // index position where field will be added
+  // can be undefined which will place it at the end
+  position: PropTypes.number,
 }
 AddFormField.defaultProps = {}
 

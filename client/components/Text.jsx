@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 
 import styled from 'styled-components'
 import Y from 'yoots'
-import classNames from 'classnames'
 import { diff } from 'deep-diff'
 
 const stripNbsp = str => str.replace(/&nbsp;|\u202F|\u00A0/g, ' ')
@@ -38,7 +37,7 @@ class Text extends Component {
     // set up shouldComponentUpdate only if it's editable..
     if (props.editable) {
       this.shouldComponentUpdate = (nextProps, nextState) => {
-        const { props, state, contentRef } = this
+        const { props, contentRef } = this
 
         // Rerender if there is no element yet... (somehow?)
         if (!contentRef.current) {
@@ -88,6 +87,7 @@ class Text extends Component {
 
     // if the content prop changes for some reason, all hell breaks loose
     if (this.props.content !== this.state.initialContent) {
+      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({
         initialContent: this.props.content,
         localContent: this.props.content,
@@ -298,6 +298,7 @@ class Text extends Component {
           </RenderAs>
         )}
         {/* underline div */}
+        {/* this isn't that clean but I couldn't get it working without a whole other div section */}
         <div
           style={{
             position: 'absolute',
@@ -348,13 +349,13 @@ Text.propTypes = {
   onBlur: PropTypes.func,
   fullWidth: PropTypes.bool,
   underline: PropTypes.bool,
+  content: PropTypes.string,
 }
 Text.defaultProps = {
   className: null,
   variant: null,
   style: null,
   zeroMargin: false,
-  content: '',
 }
 
 export default Text
