@@ -3,7 +3,17 @@ import PropTypes from 'prop-types'
 
 class Flex extends PureComponent {
   render() {
-    let { style, spaceBetween, centerItems, flexEnd, ...props } = this.props
+    const {
+      style,
+      spaceBetween,
+      justifyCenter,
+      spaceAround,
+      centerItems,
+      centerContent,
+      column,
+      flexEnd,
+      ...props
+    } = this.props
 
     //
     // justifyContent
@@ -11,8 +21,14 @@ class Flex extends PureComponent {
     if (spaceBetween) {
       style.justifyContent = 'space-between'
     }
+    if (spaceAround) {
+      style.justifyContent = 'space-around'
+    }
     if (flexEnd) {
       style.justifyContent = 'flex-end'
+    }
+    if (justifyCenter) {
+      style.justifyContent = 'center'
     }
 
     //
@@ -20,6 +36,16 @@ class Flex extends PureComponent {
     //
     if (centerItems) {
       style.alignItems = 'center'
+    }
+    if (centerContent) {
+      style.alignContent = 'center'
+    }
+
+    //
+    // flex direction
+    //
+    if (column) {
+      style.flexDirection = 'column'
     }
 
     return <div style={{ display: 'flex', ...style }} {...props} />
@@ -31,6 +57,10 @@ Flex.propTypes = {
   spaceBetween: PropTypes.bool,
   centerItems: PropTypes.bool,
   flexEnd: PropTypes.bool,
+  justifyCenter: PropTypes.bool,
+  centerContent: PropTypes.bool,
+  column: PropTypes.bool,
+  spaceAround: PropTypes.bool,
 }
 Flex.defaultProps = {
   style: {},

@@ -1,6 +1,13 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
+import styled from 'styled-components'
+
+const StyledInput = styled.input`
+  &:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0px 1000px yellow inset;
+  }
+`
 
 class TextInput extends PureComponent {
   constructor(props) {
@@ -37,23 +44,52 @@ class TextInput extends PureComponent {
       value,
       onChange,
       isRequired,
+      inputStyle,
+      fullWidth,
+      type = 'text',
       ...props
     } = this.props
     return (
-      <div {...props} className={classNames('clr-form-control', className)}>
-        {label && <label className="clr-control-label">{label}</label>}
-        <div className="clr-control-container">
-          <div className="clr-input-wrapper">
-            <input
+      <div
+        {...props}
+        className={classNames(
+          'clr-form-control',
+          { ['full-width']: fullWidth },
+          className
+        )}
+      >
+        {label && (
+          <label
+            className={classNames('clr-control-label', {
+              ['full-width']: fullWidth,
+            })}
+          >
+            {label}
+          </label>
+        )}
+        <div
+          className={classNames('clr-control-container', {
+            ['full-width']: fullWidth,
+          })}
+        >
+          <div
+            className={classNames('clr-input-wrapper', {
+              ['full-width']: fullWidth,
+            })}
+          >
+            <StyledInput
               {...{
                 name,
                 value,
                 placeholder,
                 onChange,
               }}
-              ref={this.inputRef}
-              type="text"
-              className="clr-input"
+              style={{ ...inputStyle }}
+              innerRef={this.inputRef}
+              type={type}
+              className={classNames('clr-input', {
+                ['full-width']: fullWidth,
+              })}
             />
             <clr-icon class="clr-validate-icon" shape="exclamation-circle" />
           </div>
@@ -74,6 +110,9 @@ TextInput.propTypes = {
   onChange: PropTypes.func,
   value: PropTypes.string,
   isRequired: PropTypes.bool,
+  type: PropTypes.string,
+  inputStyle: PropTypes.shape({}),
+  fullWidth: PropTypes.bool,
 }
 TextInput.defaultProps = {}
 

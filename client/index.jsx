@@ -1,8 +1,8 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import App from "client/App";
+import React from 'react'
+import ReactDOM from 'react-dom'
+import App from 'client/App'
 
-import "@clr/ui/clr-ui.min.css";
-import "client/styles.css";
+import '@clr/ui/clr-ui.min.css'
+import 'client/styles.css'
 
-ReactDOM.render(<App />, document.getElementById("root"));
+ReactDOM.render(<App />, document.getElementById('root'))
