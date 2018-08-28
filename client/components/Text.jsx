@@ -265,7 +265,10 @@ class Text extends Component {
     const textOut = <RenderAs {...innerElementProps} />
 
     // if it's not editable just send it
-    if (!editable) return textOut
+    if (!editable) {
+      const notEditableText = React.cloneElement(textOut, { style })
+      return notEditableText
+    }
 
     // this return is only relevant if it's contenteditable
     return (
