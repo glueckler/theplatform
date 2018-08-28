@@ -11,15 +11,15 @@ import TextInput from 'components/TextInput'
 
 const AddFieldBar = styled.div`
   position: relative;
-  height: ${props => (props.visible ? '40px' : '10px')};
-  transition: all 100ms ease-in-out;
+  height: ${props => (props.visible ? '23px' : '10px')};
+  transition: all 250ms ease;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   &:hover {
-    height: 40px;
+    height: 23px;
     background: #dff0d0;
   }
 `

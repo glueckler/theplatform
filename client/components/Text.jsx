@@ -215,7 +215,7 @@ class Text extends Component {
     // create cached styled component based on RenderAs
     if (!S.inputs[RenderAs]) {
       S.inputs[RenderAs] = styled[RenderAs]`
-        ${zeroMargin ? 'margin: 0' : ''};
+        ${props => (props.zeroMargin ? 'margin: 0' : '')};
         width: 100%;
         &:focus {
           outline: none;

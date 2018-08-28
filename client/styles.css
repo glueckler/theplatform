@@ -1,9 +1,1 @@
-.full-width {
-  width: 100%;
-}
-
-.link-hover:hover {
-  background: #efefef;
-  cursor: pointer;
-  transition: background 300ms ease;
-}
+@import url("styles/utils.css");

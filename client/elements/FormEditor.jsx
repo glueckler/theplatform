@@ -9,6 +9,7 @@ import AddFormField from 'components/AddFormField'
 import FormField from 'components/FormField'
 import Modal from 'components/Modal'
 import TextInput from 'components/TextInput'
+import BasicLayout from 'components/BasicLayout'
 
 class FormEditor extends Component {
   static isFieldMetadataSaveEnabled(metadata) {
@@ -344,104 +345,104 @@ class FormEditor extends Component {
     return (
       <>
         <Modal {...this.props.el.modal} />
-        <div
-          style={{ width: '100vw', display: 'flex', justifyContent: 'center' }}
-        >
-          <div style={{ width: '440px' }}>
-            {/* Form Title */}
-            {/* -   -   -   -   -   - */}
-            <Flex spaceBetween centerItems>
-              {this.props.el.formTitle !== undefined && (
-                <Text
-                  editable
-                  content={this.props.el.formTitle}
-                  placeholder="Form Title"
-                  onChange={e => {
-                    this.props.setEl({
-                      formTitle: e.target.value,
-                    })
-                  }}
-                  variant="h3"
-                  underline
-                  fullWidth
-                />
-              )}
-            </Flex>
-            {/* Form Fields */}
-            {/* -   -   -   -   -   - */}
-            <form>
-              {(this.props.el.formFields || []).map((field, index) => (
-                <React.Fragment key={field.formID}>
-                  <AddFormField
-                    onReceiveFieldSelector={
-                      this.handleInitializeAddFieldSelector
-                    }
-                    style={{ marginTop: '15px' }}
-                    position={index}
-                  >
-                    + add
-                  </AddFormField>
-                  <div style={{ position: 'relative' }}>
-                    <FormField field={field} />
-                    <Flex
-                      flexEnd
-                      style={{
-                        position: 'absolute',
-                        top: '0',
-                        bottom: '0',
-                        left: '0',
-                        right: '0',
-                      }}
+        <BasicLayout
+          displayChildren={
+            <div>
+              {/* Form Title */}
+              {/* -   -   -   -   -   - */}
+              <Flex spaceBetween centerItems>
+                {this.props.el.formTitle !== undefined && (
+                  <Text
+                    editable
+                    content={this.props.el.formTitle}
+                    placeholder="Form Title"
+                    onChange={e => {
+                      this.props.setEl({
+                        formTitle: e.target.value,
+                      })
+                    }}
+                    variant="h3"
+                    underline
+                    fullWidth
+                  />
+                )}
+              </Flex>
+              {/* Form Fields */}
+              {/* -   -   -   -   -   - */}
+              <form>
+                {(this.props.el.formFields || []).map((field, index) => (
+                  <React.Fragment key={field.formID}>
+                    <AddFormField
+                      onReceiveFieldSelector={
+                        this.handleInitializeAddFieldSelector
+                      }
+                      style={{ marginTop: '15px' }}
+                      position={index}
                     >
-                      <Button
-                        link
-                        onClick={() => {
-                          this.handleEditField(field.formID)
+                      + add
+                    </AddFormField>
+                    <div style={{ position: 'relative' }}>
+                      <FormField field={field} />
+                      <Flex
+                        flexEnd
+                        style={{
+                          position: 'absolute',
+                          top: '0',
+                          bottom: '0',
+                          left: '0',
+                          right: '0',
                         }}
                       >
-                        Edit
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          this.props.setModal({
-                            header: <>Delete "{field.label}"</>,
-                            open: true,
-                            content: <Text>Are you sure?</Text>,
-                            buttons: (
-                              <>
-                                <Button
-                                  danger
-                                  onClick={() => {
-                                    this.handleDeleteField(field.formID)
-                                  }}
-                                >
-                                  delete
-                                </Button>
-                              </>
-                            ),
-                          })
-                        }}
-                        link
-                        danger
-                      >
-                        Delete
-                      </Button>
-                    </Flex>
-                  </div>
-                </React.Fragment>
-              ))}
-            </form>
-            {/* Add Field Button */}
-            {/* -   -   -   -   -   - */}
-            <AddFormField
-              visible
-              onReceiveFieldSelector={this.handleInitializeAddFieldSelector}
-              style={{ marginTop: '20px' }}
-            >
-              + add form field
-            </AddFormField>
-          </div>
-        </div>
+                        <Button
+                          link
+                          onClick={() => {
+                            this.handleEditField(field.formID)
+                          }}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            this.props.setModal({
+                              header: <>Delete "{field.label}"</>,
+                              open: true,
+                              content: <Text>Are you sure?</Text>,
+                              buttons: (
+                                <>
+                                  <Button
+                                    danger
+                                    onClick={() => {
+                                      this.handleDeleteField(field.formID)
+                                    }}
+                                  >
+                                    delete
+                                  </Button>
+                                </>
+                              ),
+                            })
+                          }}
+                          link
+                          danger
+                        >
+                          Delete
+                        </Button>
+                      </Flex>
+                    </div>
+                  </React.Fragment>
+                ))}
+              </form>
+              {/* Add Field Button */}
+              {/* -   -   -   -   -   - */}
+              <AddFormField
+                visible
+                onReceiveFieldSelector={this.handleInitializeAddFieldSelector}
+                style={{ marginTop: '20px' }}
+              >
+                + add form field
+              </AddFormField>
+            </div>
+          }
+        />
       </>
     )
   }

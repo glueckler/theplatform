@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import { pick } from 'yoots'
 
 import Text from 'components/Text'
 import Flex from 'components/Flex'
@@ -24,8 +23,8 @@ class AppNav extends PureComponent {
     this.setEl = props.setEl
 
     this.setEl({
-      navOpen: true,
-      showOverlay: true,
+      navOpen: false,
+      showOverlay: false,
     })
 
     this.handleToggleOpen = this.handleToggleOpen.bind(this)
@@ -208,6 +207,7 @@ class AppNav extends PureComponent {
 }
 
 AppNav.propTypes = {
+  setEl: PropTypes.func,
   el: PropTypes.shape({
     navOpen: PropTypes.bool,
     showOverlay: PropTypes.bool,
