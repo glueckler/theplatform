@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import Y from 'yoots'
 import { diff } from 'deep-diff'
+import classNames from 'classnames'
 
 const stripNbsp = str => str.replace(/&nbsp;|\u202F|\u00A0/g, ' ')
 
@@ -202,6 +203,7 @@ class Text extends Component {
       style,
       fullWidth,
       underline,
+      link,
       ...innerElementProps
     } = this.props
 
@@ -216,7 +218,6 @@ class Text extends Component {
     if (!S.inputs[RenderAs]) {
       S.inputs[RenderAs] = styled[RenderAs]`
         ${props => (props.zeroMargin ? 'margin: 0' : '')};
-        width: 100%;
         &:focus {
           outline: none;
         }
@@ -228,7 +229,7 @@ class Text extends Component {
     innerElementProps = {
       ...innerElementProps,
       zeroMargin,
-      className: variant,
+      className: classNames(variant, { ['link-styles']: link }),
     }
 
     if (editable) {
@@ -354,6 +355,7 @@ Text.propTypes = {
   fullWidth: PropTypes.bool,
   underline: PropTypes.bool,
   content: PropTypes.string,
+  link: PropTypes.bool,
 }
 Text.defaultProps = {
   className: null,

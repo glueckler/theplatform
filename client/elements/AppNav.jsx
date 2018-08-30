@@ -180,7 +180,7 @@ class AppNav extends PureComponent {
                         borderBottom: '1px solid #9a9a9a',
                         position: 'relative',
                       }}
-                      className="link-hover"
+                      className="li-hover"
                     >
                       <div
                         style={{

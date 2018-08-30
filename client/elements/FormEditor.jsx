@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { ifDiffProps } from 'yoots'
+import colors from 'styles/colors'
 
 import Text from 'components/Text'
 import Flex from 'components/Flex'
@@ -30,6 +31,15 @@ class FormEditor extends Component {
     return true
   }
 
+  static resetFieldPositionVals(fields) {
+    const nxt = [...fields]
+
+    nxt.forEach((field, index) => {
+      field.position = index
+    })
+    return nxt
+  }
+
   constructor(props) {
     super(props)
 
@@ -40,69 +50,9 @@ class FormEditor extends Component {
       addFieldModalOpen: false,
       selectedFormId: '123',
       formTitle: '',
-      forms: [
-        {
-          formTitle: 'ExampleForm',
-          id: '123',
-        },
-        {
-          formTitle: 'Another form',
-          id: '122',
-        },
-      ],
+      forms: require('client/examples/fakeForms.js'),
       formFields: [],
-      allFields: [
-        {
-          id: 'ad',
-          label: 'select field test',
-          inputType: 'select',
-          options: ['option1', 'option2', 'option3'],
-          placeholder: 'option2',
-          formID: '123',
-          isRequired: true,
-          position: 3,
-        },
-        {
-          id: 'add',
-          label: 'text input field test',
-          inputType: 'textinput',
-          options: undefined,
-          placeholder: 'placeholder test',
-          formID: '123',
-          isRequired: true,
-          position: 2,
-        },
-        {
-          id: 'adc',
-          label: 'text area field test',
-          inputType: 'textarea',
-          options: undefined,
-          placeholder: 'placeholder test',
-          formID: '123',
-          isRequired: true,
-          position: 1,
-        },
-        {
-          id: 'adb',
-          label: 'Radios field test',
-          inputType: 'radio',
-          options: ['radio option1', 'carls jr', 'carls sr'],
-          placeholder: 'carls sr',
-          formID: '123',
-          isRequired: true,
-          position: 4,
-        },
-        {
-          id: 'adn',
-          label: 'Checkboxes field test',
-          inputType: 'checkbox',
-          options: ['Check mate', 'Check Pleaaaase', 'Check yo self'],
-          placeholder: 'Check mate',
-          formID: '123',
-          isRequired: true,
-          position: 4,
-        },
-      ],
+      allFields: require('client/examples/fakeFormFields.js'),
       formFieldEdit: {},
     })
 
@@ -117,6 +67,9 @@ class FormEditor extends Component {
     this.handleUpdateEditField = this.handleUpdateEditField.bind(this)
     this.handleDeleteField = this.handleDeleteField.bind(this)
     this.handleFormListOnChange = this.handleFormListOnChange.bind(this)
+    this.handleAddNewForm = this.handleAddNewForm.bind(this)
+    this.handleFormTitleChange = this.handleFormTitleChange.bind(this)
+    this.handleDeleteForm = this.handleDeleteForm.bind(this)
   }
 
   componentDidUpdate(prevProps) {
@@ -142,9 +95,82 @@ class FormEditor extends Component {
     formFields = formFields.filter(
       field => field.formID === this.props.el.selectedFormId
     )
-    formFields.sort((a, b) => parseInt(a) - parseInt(b))
+    formFields.sort(
+      (fieldA, fieldB) => parseInt(fieldA.position) - parseInt(fieldB.position)
+    )
+
     this.setEl({
       formFields,
+    })
+  }
+
+  generateNewFormData() {
+    // generate a form with a unique title
+    const formTitle = (() => {
+      const genericName = 'New Form'
+      const nameExists = ext => form => form.formTitle === genericName + ext
+      // if generic Name isn't taken..
+      if (!this.props.el.forms.find(nameExists(''))) {
+        return genericName
+      }
+      for (let i = 2; true; i++) {
+        if (!this.props.el.forms.find(nameExists(` ${i}`))) {
+          return `${genericName} ${i}`
+        }
+      }
+    })()
+
+    return {
+      formTitle,
+      id: Date(),
+    }
+  }
+
+  handleAddNewForm() {
+    this.setEl({
+      forms: [this.generateNewFormData(), ...this.props.el.forms],
+    })
+  }
+
+  handleDeleteForm(id) {
+    const indexOfForm = this.props.el.forms.findIndex(form => form.id === id)
+    const form = this.props.el.forms[indexOfForm]
+
+    const nxtForms = [...this.props.el.forms]
+    nxtForms.splice(indexOfForm, 1)
+    const onDelete = () => {
+      let selectedFormId
+      // if the form being deleted is active, select the first one
+      if (form.id === this.props.el.selectedFormId) {
+        selectedFormId = this.props.el.forms[0]?.id
+        // if the first one was selected, select the second
+        if (selectedFormId === this.props.el.selectedFormId) {
+          selectedFormId = this.props.el.forms[1]?.id
+        }
+      }
+
+      this.setEl({
+        forms: nxtForms,
+        selectedFormId,
+      })
+      this.props.setModal({
+        open: false,
+      })
+      this.freshFormFields()
+      this.freshFormTitle()
+    }
+
+    this.props.setModal({
+      open: true,
+      header: <>Delete "{form.formTitle}"</>,
+      content: <Text>Are you sure?</Text>,
+      buttons: (
+        <>
+          <Button danger onClick={onDelete}>
+            delete
+          </Button>
+        </>
+      ),
     })
   }
 
@@ -152,6 +178,18 @@ class FormEditor extends Component {
     this.setEl({ selectedFormId: nextFormId })
     this.freshFormTitle()
     this.freshFormFields()
+  }
+
+  handleFormTitleChange(e) {
+    const nxtForms = [...this.props.el.forms]
+    const formRef = nxtForms.find(
+      form => form.id === this.props.el.selectedFormId
+    )
+    formRef.formTitle = e.target.value
+    this.props.setEl({
+      forms: nxtForms,
+    })
+    this.freshFormTitle()
   }
 
   // this is the callback that receives the FieldSelector node and places it in a modal
@@ -208,7 +246,6 @@ class FormEditor extends Component {
   }
 
   handleAddFieldSave(_, index) {
-    // TODO: asdf (dean)
     const meta = this.props.el.newFormFieldMetadata.fieldMetadata
     const inputType = this.props.el.newFormFieldMetadata.inputType
     if (
@@ -218,23 +255,17 @@ class FormEditor extends Component {
       return
     }
 
-    // TODO:dean
-    // find the field with index and add one to it
-    // then update all other fields and add one to their position
-    // that's a lot of code...
-    // maybe just set it up so el.formFields is guaranteed to be sorted based on position
-    // then figure your life out..
-
+    const nxtField = {
+      // the data coming from the FieldSelector (ie meta, and inputType) should have consistent key names
+      ...meta,
+      inputType,
+      position: index,
+    }
+    let nxtFormFields = [...this.props.el.formFields]
+    nxtFormFields.splice(index, 0, nxtField)
+    nxtFormFields = FormEditor.resetFieldPositionVals(nxtFormFields)
     this.setEl({
-      formFields: [
-        ...this.props.el.formFields,
-        {
-          // the data coming from the FieldSelector (ie meta, and inputType) should have consistent key names
-          ...meta,
-          inputType,
-          position: index,
-        },
-      ],
+      formFields: nxtFormFields,
       newFormFieldMetadata: {},
     })
 
@@ -401,13 +432,33 @@ class FormEditor extends Component {
         <BasicLayout
           menuChildren={
             <EntityList
-              listTitle={{
-                title: 'Forms',
-                link: { to: '/courses/new', label: 'New Form' },
-              }}
+              listTitle={
+                <>
+                  <Text zeroMargin variant="h3">
+                    Forms
+                  </Text>
+                  <Text onClick={this.handleAddNewForm} zeroMargin link>
+                    New Form
+                  </Text>
+                </>
+              }
               listItems={this.props.el?.forms?.map(form => ({
-                title: form.formTitle,
                 id: form.id,
+                children: (
+                  <>
+                    <Text vairant="h4">{form.formTitle}</Text>
+                    <Text
+                      onClick={() => {
+                        this.handleDeleteForm(form.id)
+                      }}
+                      zeroMargin
+                      link
+                      style={{ color: colors.btnDanger }}
+                    >
+                      Delete
+                    </Text>
+                  </>
+                ),
               }))}
               selectedId={this.props.el.selectedFormId}
               onChange={this.handleFormListOnChange}
@@ -423,13 +474,10 @@ class FormEditor extends Component {
                     editable
                     content={this.props.el.formTitle}
                     placeholder="Form Title"
-                    onChange={e => {
-                      this.props.setEl({
-                        formTitle: e.target.value,
-                      })
-                    }}
+                    onChange={this.handleFormTitleChange}
                     variant="h3"
                     underline
+                    zeroMargin
                     fullWidth
                   />
                 )}

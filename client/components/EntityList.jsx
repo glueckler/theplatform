@@ -25,29 +25,27 @@ class EntityList extends PureComponent {
               display: flex;
               justify-content: space-between;
               border-bottom: 1px solid #a1a1a1;
+              align-items: flex-end;
             `
         })()}
-        <ListTitle>
-          <Text zeroMargin variant="h3">
-            {this.props.listTitle?.title}
-          </Text>
-          <Link
-            to={this.props.listTitle?.link?.to}
-            style={{ flex: '0 0 auto' }}
-          >
-            {this.props.listTitle?.link?.label}
-          </Link>
-        </ListTitle>
+        <ListTitle>{this.props.listTitle}</ListTitle>
+        {/* -    -    -    -    -    -   */}
+        {/* -    -    -    -    -    -   */}
         {(() => {
           ListItem =
             ListItem ||
             styled(ListTitle)`
-              ${props =>
-                props.selected ? `background: ${colors.rowSelected}` : ''};
+              ${props => {
+                if (!props.selected) return ''
+                const selected = []
+                selected.push(`font-size: .7rem;`)
+                // battling with specificity
+                return `& p { ${selected.join('\n')}} `
+              }};
               padding-left: 5px;
             `
         })()}
-        {this.props.listItems.map(({ id, title }) => {
+        {this.props.listItems.map(({ id, children }) => {
           return (
             <ListItem
               selected={id === this.props.selectedId}
@@ -62,10 +60,10 @@ class EntityList extends PureComponent {
                   return this.onClickCache[id]
                 })()
               }
-              className="link-hover"
+              className="li-hover"
               key={id}
             >
-              <Text vairant="h4">{title}</Text>
+              {children}
             </ListItem>
           )
         })}
@@ -75,16 +73,11 @@ class EntityList extends PureComponent {
 }
 
 EntityList.propTypes = {
-  listTitle: PropTypes.shape({
-    title: PropTypes.string,
-    link: PropTypes.shape({
-      to: PropTypes.string,
-      label: PropTypes.string,
-    }),
-  }),
+  listTitle: PropTypes.node,
   listItems: PropTypes.arrayOf(
     PropTypes.shape({
       title: PropTypes.string,
+      children: PropTypes.node,
     })
   ),
   selectedId: PropTypes.string,

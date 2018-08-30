@@ -1,9 +1,11 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
+import colors from 'styles/colors'
 
 import EntityList from 'components/EntityList'
 import BasicLayout from 'components/BasicLayout'
+import Text from 'components/Text'
 
 class CourseIndex extends PureComponent {
   constructor(props) {
@@ -22,11 +24,34 @@ class CourseIndex extends PureComponent {
   renderCourseList() {
     return (
       <EntityList
-        listTitle={{
-          title: 'Courses',
-          link: { to: '/courses/new', label: 'New Course' },
-        }}
-        listItems={this.props.el.courseLiItems}
+        listTitle={
+          <>
+            <Text zeroMargin variant="h3">
+              Courses
+            </Text>
+            <Text onClick={this.handleAddNewForm} zeroMargin link>
+              New Course
+            </Text>
+          </>
+        }
+        listItems={this.props.el?.courseLiItems?.map(course => ({
+          id: course.id,
+          children: (
+            <>
+              <Text vairant="h4">TITKE</Text>
+              <Text
+                onClick={() => {}}
+                zeroMargin
+                link
+                style={{ color: colors.btnDanger }}
+              >
+                Delete
+              </Text>
+            </>
+          ),
+        }))}
+        selectedId={this.props.el.selectedFormId}
+        onChange={this.handleFormListOnChange}
       />
     )
   }

@@ -2,7 +2,18 @@
   width: 100%;
 }
 
-.link-hover:hover {
+.link-styles {
+  color: #007cbb;
+  text-decoration: none;
+}
+
+.link-styles:hover {
+  color: #007cbb;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.li-hover:hover {
   background: #eeeeee;
   cursor: pointer;
   transition: background 420ms ease;
