@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
+import { ifDiffProps } from 'yoots'
 
 import Text from 'components/Text'
 import Flex from 'components/Flex'
@@ -10,6 +11,7 @@ import FormField from 'components/FormField'
 import Modal from 'components/Modal'
 import TextInput from 'components/TextInput'
 import BasicLayout from 'components/BasicLayout'
+import EntityList from 'components/EntityList'
 
 class FormEditor extends Component {
   static isFieldMetadataSaveEnabled(metadata) {
@@ -22,7 +24,7 @@ class FormEditor extends Component {
     if (meta.label === '') {
       return false
     }
-    if (meta.options && meta.options.indexOf('') !== -1) {
+    if (meta.options?.indexOf('') !== -1) {
       return false
     }
     return true
@@ -36,50 +38,67 @@ class FormEditor extends Component {
     this.setEl({
       newFormFieldMetadata: {},
       addFieldModalOpen: false,
-      formTitle: 'Example Form',
-      formFields: [
+      selectedFormId: '123',
+      formTitle: '',
+      forms: [
         {
+          formTitle: 'ExampleForm',
+          id: '123',
+        },
+        {
+          formTitle: 'Another form',
+          id: '122',
+        },
+      ],
+      formFields: [],
+      allFields: [
+        {
+          id: 'ad',
           label: 'select field test',
           inputType: 'select',
           options: ['option1', 'option2', 'option3'],
           placeholder: 'option2',
-          formID: 'abc',
+          formID: '123',
           isRequired: true,
           position: 3,
         },
         {
+          id: 'add',
           label: 'text input field test',
           inputType: 'textinput',
           options: undefined,
           placeholder: 'placeholder test',
-          formID: 'abcd',
+          formID: '123',
           isRequired: true,
           position: 2,
         },
         {
+          id: 'adc',
           label: 'text area field test',
           inputType: 'textarea',
           options: undefined,
           placeholder: 'placeholder test',
-          formID: 'abce',
+          formID: '123',
           isRequired: true,
           position: 1,
         },
         {
+          id: 'adb',
           label: 'Radios field test',
           inputType: 'radio',
           options: ['radio option1', 'carls jr', 'carls sr'],
           placeholder: 'carls sr',
-          formID: 'abcx',
+          formID: '123',
           isRequired: true,
           position: 4,
         },
         {
+          id: 'adn',
           label: 'Checkboxes field test',
           inputType: 'checkbox',
           options: ['Check mate', 'Check Pleaaaase', 'Check yo self'],
           placeholder: 'Check mate',
-          formID: 'ax',
+          formID: '123',
           isRequired: true,
           position: 4,
         },
@@ -97,6 +116,42 @@ class FormEditor extends Component {
     this.handleEditField = this.handleEditField.bind(this)
     this.handleUpdateEditField = this.handleUpdateEditField.bind(this)
     this.handleDeleteField = this.handleDeleteField.bind(this)
+    this.handleFormListOnChange = this.handleFormListOnChange.bind(this)
+  }
+
+  componentDidUpdate(prevProps) {
+    const ifDiff = ifDiffProps(prevProps.el, this.props.el)
+    ifDiff('selectedFormId', () => {
+      this.freshFormTitle()
+      this.freshFormFields()
+    })
+  }
+
+  freshFormTitle() {
+    const formTitle = this.props.el.forms.find(
+      form => form.id === this.props.el.selectedFormId
+    )?.formTitle
+    this.setEl({
+      formTitle,
+    })
+  }
+
+  freshFormFields() {
+    let formFields = [...this.props.el.allFields]
+
+    formFields = formFields.filter(
+      field => field.formID === this.props.el.selectedFormId
+    )
+    formFields.sort((a, b) => parseInt(a) - parseInt(b))
+    this.setEl({
+      formFields,
+    })
+  }
+
+  handleFormListOnChange(nextFormId) {
+    this.setEl({ selectedFormId: nextFormId })
+    this.freshFormTitle()
+    this.freshFormFields()
   }
 
   // this is the callback that receives the FieldSelector node and places it in a modal
@@ -192,9 +247,7 @@ class FormEditor extends Component {
   // to set up the modal initially, when edit is requested
   handleEditField(id) {
     // pick out the form field..
-    const formField = this.props.el.formFields.find(
-      field => field.formID === id
-    )
+    const formField = this.props.el.formFields.find(field => field.id === id)
 
     // create the RAM edit object
     this.setEl({
@@ -213,6 +266,13 @@ class FormEditor extends Component {
       return
     }
 
+    const modalCancel = () => {
+      this.setEl({
+        modal: null,
+        formFieldEdit: {},
+      })
+    }
+
     const content = (
       <>
         <TextInput
@@ -228,7 +288,7 @@ class FormEditor extends Component {
           }}
         />
         <Text variant="h4">Field Options</Text>
-        {field.options.map((fieldOption, index) => {
+        {field.options?.map((fieldOption, index) => {
           return (
             <React.Fragment key={fieldOption}>
               <Text
@@ -283,6 +343,7 @@ class FormEditor extends Component {
         content,
         header: <>Edit Field</>,
         open: true,
+        onCancel: modalCancel,
         buttons: (
           <>
             <Button
@@ -300,15 +361,7 @@ class FormEditor extends Component {
             >
               save
             </Button>
-            <Button
-              onClick={() => {
-                this.setEl({
-                  modal: null,
-                  formFieldEdit: {},
-                })
-              }}
-              link
-            >
+            <Button onClick={modalCancel} link>
               cancel
             </Button>
           </>
@@ -319,7 +372,7 @@ class FormEditor extends Component {
 
   handleSaveEditField(metadata) {
     const fieldIndex = this.props.el.formFields.findIndex(
-      field => field.formID === metadata.formID
+      field => field.id === metadata.id
     )
     const nextFormFields = [...this.props.el.formFields]
     nextFormFields.splice(fieldIndex, 1, metadata)
@@ -331,7 +384,7 @@ class FormEditor extends Component {
     this.setEl({
       formFields: (() => {
         const fieldIndex = this.props.el.formFields.findIndex(
-          field => field.formID === id
+          field => field.id === id
         )
         const nextFormFields = [...this.props.el.formFields]
         nextFormFields.splice(fieldIndex, 1)
@@ -346,6 +399,20 @@ class FormEditor extends Component {
       <>
         <Modal {...this.props.el.modal} />
         <BasicLayout
+          menuChildren={
+            <EntityList
+              listTitle={{
+                title: 'Forms',
+                link: { to: '/courses/new', label: 'New Form' },
+              }}
+              listItems={this.props.el?.forms?.map(form => ({
+                title: form.formTitle,
+                id: form.id,
+              }))}
+              selectedId={this.props.el.selectedFormId}
+              onChange={this.handleFormListOnChange}
+            />
+          }
           displayChildren={
             <div>
               {/* Form Title */}
@@ -371,7 +438,7 @@ class FormEditor extends Component {
               {/* -   -   -   -   -   - */}
               <form>
                 {(this.props.el.formFields || []).map((field, index) => (
-                  <React.Fragment key={field.formID}>
+                  <React.Fragment key={field.id}>
                     <AddFormField
                       onReceiveFieldSelector={
                         this.handleInitializeAddFieldSelector
@@ -396,7 +463,7 @@ class FormEditor extends Component {
                         <Button
                           link
                           onClick={() => {
-                            this.handleEditField(field.formID)
+                            this.handleEditField(field.id)
                           }}
                         >
                           Edit
@@ -412,7 +479,7 @@ class FormEditor extends Component {
                                   <Button
                                     danger
                                     onClick={() => {
-                                      this.handleDeleteField(field.formID)
+                                      this.handleDeleteField(field.id)
                                     }}
                                   >
                                     delete
@@ -453,16 +520,19 @@ FormEditor.propTypes = {
   el: PropTypes.shape({
     formTitle: PropTypes.string,
     addFieldModalOpen: PropTypes.bool,
+    forms: PropTypes.arrayOf(PropTypes.shape({})),
     formFields: PropTypes.array,
     formFieldEdit: PropTypes.shape({
       options: PropTypes.array,
     }),
+    selectedFormId: PropTypes.string,
     newFormFieldMetadata: PropTypes.shape({
       fieldMetadata: PropTypes.shape({}),
       inputType: PropTypes.string,
     }),
     modal: PropTypes.shape({}),
   }).isRequired,
+  setModal: PropTypes.func,
 }
 FormEditor.defaultProps = {}
 
@@ -471,7 +541,7 @@ const mapState = state => ({
 })
 const mapDispath = dispatch => ({
   setEl: state => {
-    dispatch({ type: 'FORM_EDITOR_SET_STATE', state })
+    return dispatch({ type: 'FORM_EDITOR_SET_STATE', state })
   },
   // this is not relate to this.props.el.modal (this sets the app modal)
   setModal: state => {

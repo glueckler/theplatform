@@ -227,6 +227,7 @@ class Text extends Component {
 
     innerElementProps = {
       ...innerElementProps,
+      zeroMargin,
       className: variant,
     }
 

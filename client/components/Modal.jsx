@@ -43,6 +43,7 @@ class Modal extends Component {
               <div className="modal-header">
                 <button
                   onKeyPress={onCancel}
+                  onClick={onCancel}
                   aria-label="Close"
                   className="close"
                   type="button"

@@ -2,9 +2,9 @@ import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
+import colors from 'styles/colors'
 
 import Text from 'components/Text'
-import Button from 'components/Button'
 
 let ListTitle
 let ListItem
@@ -12,7 +12,7 @@ let ListItem
 class EntityList extends PureComponent {
   constructor(props) {
     super(props)
-    this.state = {}
+    this.onClickCache = {}
   }
 
   render() {
@@ -39,12 +39,33 @@ class EntityList extends PureComponent {
           </Link>
         </ListTitle>
         {(() => {
-          ListItem = ListItem || styled(ListTitle)``
+          ListItem =
+            ListItem ||
+            styled(ListTitle)`
+              ${props =>
+                props.selected ? `background: ${colors.rowSelected}` : ''};
+              padding-left: 5px;
+            `
         })()}
-        {this.props.listItems.map(li => {
+        {this.props.listItems.map(({ id, title }) => {
           return (
-            <ListItem className="link-hover" key={li?.id}>
-              <Text vairant="h4">{li?.title}</Text>
+            <ListItem
+              selected={id === this.props.selectedId}
+              onClick={
+                (id && this.onClickCache[id]) ||
+                (() => {
+                  this.onClickCache[id] = () => {
+                    if (this.props.onChange) {
+                      this.props.onChange(id)
+                    }
+                  }
+                  return this.onClickCache[id]
+                })()
+              }
+              className="link-hover"
+              key={id}
+            >
+              <Text vairant="h4">{title}</Text>
             </ListItem>
           )
         })}
@@ -66,9 +87,11 @@ EntityList.propTypes = {
       title: PropTypes.string,
     })
   ),
+  selectedId: PropTypes.string,
+  onChange: PropTypes.func,
 }
 EntityList.defaultProps = {
-  listItems: []
+  listItems: [],
 }
 
 export default EntityList

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 
+import { Link } from 'react-router-dom'
 import Text from 'components/Text'
 import Flex from 'components/Flex'
 
@@ -60,9 +61,7 @@ class AppNav extends PureComponent {
           background: white;
           height: 100vh;
           width: ${props => (props.navOpen ? '312px' : closedNavWidth)};
-          box-shadow: 0px 8px 10px -5px rgba(0, 0, 0, 0.2),
-            0px 16px 24px 2px rgba(0, 0, 0, 0.14),
-            0px 6px 30px 5px rgba(0, 0, 0, 0.12);
+          box-shadow: 2px 0 3px -2px rgba(0, 0, 0, 0.27);
           transition: all 300ms ease;
           overflow: hidden;
         `
@@ -151,51 +150,68 @@ class AppNav extends PureComponent {
             </NavHeader>
             <div style={{ marginTop: '60px' }}>
               {[
-                { linkName: 'Courses', iconName: 'certificate' },
-                { linkName: 'Forms', iconName: 'checkbox-list' },
-                { linkName: 'Payment Dash', iconName: 'dollar-bill' },
+                {
+                  linkName: 'Courses',
+                  iconName: 'certificate',
+                  link: '/courses',
+                },
+                {
+                  linkName: 'Forms',
+                  iconName: 'checkbox-list',
+                  link: '/forms',
+                },
+                {
+                  linkName: 'Payment Dash',
+                  iconName: 'dollar-bill',
+                  link: '/',
+                },
               ].map(nav => {
                 return (
-                  <Flex
+                  <Link
+                    className="unset-link"
                     key={nav.linkName}
-                    spaceBetween
-                    centerItems
-                    style={{
-                      height: '51px',
-                      borderBottom: '1px solid #9a9a9a',
-                      position: 'relative',
-                    }}
-                    className="link-hover"
+                    to={nav?.link}
                   >
-                    <div
+                    <Flex
+                      spaceBetween
+                      centerItems
                       style={{
-                        background: !this.props.el.navOpen
-                          ? `linear-gradient(
+                        height: '51px',
+                        borderBottom: '1px solid #9a9a9a',
+                        position: 'relative',
+                      }}
+                      className="link-hover"
+                    >
+                      <div
+                        style={{
+                          background: !this.props.el.navOpen
+                            ? `linear-gradient(
                           to right,
                           rgba(255, 255, 255, 0) 0%,
                           rgba(255, 255, 255, 0) 75%,
                           rgba(255, 255, 255, 1) 100%
                         )`
-                          : 'none',
-                        position: 'absolute',
-                        top: '0',
-                        bottom: '0',
-                        left: '0',
-                        right: '0',
-                      }}
-                    />
+                            : 'none',
+                          position: 'absolute',
+                          top: '0',
+                          bottom: '0',
+                          left: '0',
+                          right: '0',
+                        }}
+                      />
 
-                    <LinkIcon>
-                      <clr-icon shape={nav.iconName} size="32" />
-                    </LinkIcon>
-                    <Text
-                      zeroMargin
-                      variant="h3"
-                      style={{ whiteSpace: 'nowrap' }}
-                    >
-                      {nav.linkName}
-                    </Text>
-                  </Flex>
+                      <LinkIcon>
+                        <clr-icon shape={nav.iconName} size="32" />
+                      </LinkIcon>
+                      <Text
+                        zeroMargin
+                        variant="h3"
+                        style={{ whiteSpace: 'nowrap' }}
+                      >
+                        {nav.linkName}
+                      </Text>
+                    </Flex>
+                  </Link>
                 )
               })}
             </div>

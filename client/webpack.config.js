@@ -68,6 +68,7 @@ const config = {
       api: resolve(rootPath, 'api'),
       utils: resolve(rootPath, 'utils'),
       yoots: resolve(rootPath, 'utils/yoots'),
+      styles: resolve(rootPath, 'styles'),
     },
     extensions: ['.js', '.jsx', '/index.jsx', '/index.js'],
   },
