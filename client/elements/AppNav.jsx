@@ -173,7 +173,6 @@ class AppNav extends PureComponent {
                     to={nav?.link}
                   >
                     <Flex
-                      spaceBetween
                       centerItems
                       style={{
                         height: '51px',
