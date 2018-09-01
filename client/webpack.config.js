@@ -41,9 +41,10 @@ const config = {
         exclude: /(node_modules)/,
         use: {
           loader: 'babel-loader',
-          options: {
-            presets: ['@babel/env'],
-          },
+          // see babel.config.js instead
+          // options: {
+          //   presets: ['@babel/env'],
+          // },
         },
       },
       // TODO: asdf (dean) minify css for production builds
@@ -66,6 +67,8 @@ const config = {
       dux: resolve(rootPath, 'dux'),
       api: resolve(rootPath, 'api'),
       utils: resolve(rootPath, 'utils'),
+      yoots: resolve(rootPath, 'utils/yoots'),
+      styles: resolve(rootPath, 'styles'),
     },
     extensions: ['.js', '.jsx', '/index.jsx', '/index.js'],
   },

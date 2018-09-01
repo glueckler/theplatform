@@ -1,0 +1,34 @@
+.full-width {
+  width: 100%;
+}
+
+.link-styles {
+  color: #007cbb;
+  text-decoration: none;
+}
+
+.link-styles:hover {
+  color: #007cbb;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.li-hover:hover {
+  background: #eeeeee;
+  cursor: pointer;
+  transition: background 420ms ease;
+}
+
+.unset-link.unset-link {
+  color: unset;
+}
+
+.unset-link:hover {
+  text-decoration: unset;
+}
+
+.text-ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

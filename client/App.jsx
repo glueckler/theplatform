@@ -1,21 +1,20 @@
 import React from 'react'
 import { Provider } from 'react-redux'
-import { BrowserRouter as Router, Route } from 'react-router-dom'
-
 import store from 'client/store'
+import { BrowserRouter as Router } from 'react-router-dom'
 
-// bullshit test stuff..
-import FormBuilder from 'components/FormBuilder'
-import APITest from 'elements/APITest'
+import AppRoutes from 'client/AppRoutes'
+import AppModal from 'elements/AppModal'
+import AppNav from 'elements/AppNav'
 
 const App = () => (
   <Router>
     <Provider store={store}>
-      <div>
-        <Route path="/" render={() => <div>Welcome to the Platform</div>} />
-        <Route path="/hello" component={FormBuilder} />
-        <Route path="/goodbye" component={APITest} />
-      </div>
+      <>
+        <AppNav />
+        <AppRoutes />
+        <AppModal />
+      </>
     </Provider>
   </Router>
 )
