@@ -42,7 +42,7 @@ class EntityList extends PureComponent {
                 // battling with specificity
                 return `& p { ${selected.join('\n')}} `
               }};
-              padding-left: 5px;
+              padding: 0 5px;
             `
         })()}
         {this.props.listItems.map(({ id, children }) => {
