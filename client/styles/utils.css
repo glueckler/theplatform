@@ -26,3 +26,9 @@
 .unset-link:hover {
   text-decoration: unset;
 }
+
+.text-ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

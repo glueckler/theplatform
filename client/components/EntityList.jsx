@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
-import colors from 'styles/colors'
+import colors from 'utils/colors'
 
 import Text from 'components/Text'
 

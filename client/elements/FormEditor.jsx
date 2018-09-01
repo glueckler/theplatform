@@ -2,9 +2,9 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { ifDiffProps } from 'yoots'
-import colors from 'styles/colors'
+import colors from 'utils/colors'
 
-import Text from 'components/Text'
+import Text, { EdiTitlText } from 'components/Text'
 import Flex from 'components/Flex'
 import Button from 'components/Button'
 import AddFormField from 'components/AddFormField'
@@ -72,6 +72,11 @@ class FormEditor extends Component {
     this.handleDeleteForm = this.handleDeleteForm.bind(this)
   }
 
+  componentDidMount() {
+    this.freshFormTitle()
+    this.freshFormFields()
+  }
+
   componentDidUpdate(prevProps) {
     const ifDiff = ifDiffProps(prevProps.el, this.props.el)
     ifDiff('selectedFormId', () => {
@@ -81,15 +86,17 @@ class FormEditor extends Component {
   }
 
   freshFormTitle() {
-    const formTitle = this.props.el.forms.find(
+    const formTitle = this.props.el.forms?.find(
       form => form.id === this.props.el.selectedFormId
     )?.formTitle
+    if (!formTitle) return
     this.setEl({
       formTitle,
     })
   }
 
   freshFormFields() {
+    if (!this.props.el.allFields) return
     let formFields = [...this.props.el.allFields]
 
     formFields = formFields.filter(
@@ -185,7 +192,7 @@ class FormEditor extends Component {
     const formRef = nxtForms.find(
       form => form.id === this.props.el.selectedFormId
     )
-    formRef.formTitle = e.target.value
+    formRef.formTitle = e.target.value || formRef.formTitle
     this.props.setEl({
       forms: nxtForms,
     })
@@ -465,23 +472,16 @@ class FormEditor extends Component {
             />
           }
           displayChildren={
-            <div>
+            <>
               {/* Form Title */}
               {/* -   -   -   -   -   - */}
-              <Flex spaceBetween centerItems>
-                {this.props.el.formTitle !== undefined && (
-                  <Text
-                    editable
-                    content={this.props.el.formTitle}
-                    placeholder="Form Title"
-                    onChange={this.handleFormTitleChange}
-                    variant="h3"
-                    underline
-                    zeroMargin
-                    fullWidth
-                  />
-                )}
-              </Flex>
+              {this.props.el.formTitle !== undefined && (
+                <EdiTitlText
+                  content={this.props.el.formTitle}
+                  placeholder="Form Title"
+                  onChange={this.handleFormTitleChange}
+                />
+              )}
               {/* Form Fields */}
               {/* -   -   -   -   -   - */}
               <form>
@@ -555,7 +555,7 @@ class FormEditor extends Component {
               >
                 + add form field
               </AddFormField>
-            </div>
+            </>
           }
         />
       </>
@@ -586,6 +586,8 @@ FormEditor.defaultProps = {}
 
 const mapState = state => ({
   el: state.elFORM_EDITOR,
+  forms: state.forms,
+  formFields: state.formFields,
 })
 const mapDispath = dispatch => ({
   setEl: state => {

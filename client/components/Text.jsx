@@ -217,7 +217,8 @@ class Text extends Component {
     // create cached styled component based on RenderAs
     if (!S.inputs[RenderAs]) {
       S.inputs[RenderAs] = styled[RenderAs]`
-        ${props => (props.zeroMargin ? 'margin: 0' : '')};
+        ${props => (props.zeroMargin ? 'margin-top: 0 !important' : '')};
+        ${props => (props.zeroMargin ? 'margin-bottom: 0 !important' : '')};
         &:focus {
           outline: none;
         }
@@ -362,6 +363,11 @@ Text.defaultProps = {
   variant: null,
   style: null,
   zeroMargin: false,
+  content: '',
 }
 
 export default Text
+
+export const EdiTitlText = props => (
+  <Text editable variant="h3" underline zeroMargin fullWidth {...props} />
+)

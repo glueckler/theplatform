@@ -32,7 +32,8 @@ class BasicLayout extends PureComponent {
               MenuColumn ||
               styled.div`
                 margin-left: 117px;
-                flex: 0 0 287px;
+                flex: 0 0 267px;
+                overflow: hidden;
               `
           })()}
           <MenuColumn>{this.props.menuChildren}</MenuColumn>
@@ -41,7 +42,8 @@ class BasicLayout extends PureComponent {
             DisplayColumn =
               DisplayColumn ||
               styled.div`
-                flex: 0 0 443px;
+                flex: 0 0 500px;
+                overflow: hidden;
                 margin-left: 95px;
               `
           })()}
