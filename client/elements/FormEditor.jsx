@@ -328,7 +328,7 @@ class FormEditor extends Component {
           }}
         />
         <Text variant="h4">Field Options</Text>
-        {field.options?.map((fieldOption, index) => {
+        {field?.options?.map((fieldOption, index) => {
           return (
             <React.Fragment key={fieldOption}>
               <Text
@@ -339,7 +339,7 @@ class FormEditor extends Component {
                   const nextFormFieldEdit = {
                     ...field,
                     options: (() => {
-                      const nextOptions = [...field.options]
+                      const nextOptions = [...field?.options]
                       if (e.target.value === '') {
                         // delete from array if it's empty
                         nextOptions.splice(index, 1)
@@ -363,7 +363,7 @@ class FormEditor extends Component {
                     const nextFormFieldEdit = {
                       ...field,
                       options: (() => {
-                        const nextOptions = [...field.options]
+                        const nextOptions = [...field?.options]
                         nextOptions.splice(index + 1, 0, e.target.value)
                         return nextOptions
                       })(),
@@ -428,6 +428,8 @@ class FormEditor extends Component {
         )
         const nextFormFields = [...this.props.formFields]
         nextFormFields.splice(fieldIndex, 1)
+        // TODO: asdf (dean)
+        debugger
         return nextFormFields
       })(),
     })
@@ -435,6 +437,8 @@ class FormEditor extends Component {
   }
 
   render() {
+    // TODO: asdf (dean)
+    debugger
     return (
       <>
         <Modal {...this.props.el.modal} />
