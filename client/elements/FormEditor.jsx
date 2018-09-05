@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { ifDiffProps } from 'yoots'
 import colors from 'utils/colors'
+import * as API from 'api'
 
 import Text, { EdiTitlText } from 'components/Text'
 import Flex from 'components/Flex'
@@ -50,7 +51,6 @@ class FormEditor extends Component {
       addFieldModalOpen: false,
       selectedFormId: '123',
       formTitle: '',
-      forms: require('client/examples/fakeForms.js'),
       formFields: [],
       allFields: require('client/examples/fakeFormFields.js'),
       formFieldEdit: {},
@@ -75,6 +75,9 @@ class FormEditor extends Component {
   componentDidMount() {
     this.freshFormTitle()
     this.freshFormFields()
+    // init requests
+    this.props.getForms()
+    this.props.getFormFields()
   }
 
   componentDidUpdate(prevProps) {
@@ -86,7 +89,7 @@ class FormEditor extends Component {
   }
 
   freshFormTitle() {
-    const formTitle = this.props.el.forms?.find(
+    const formTitle = this.props.forms?.find(
       form => form.id === this.props.el.selectedFormId
     )?.formTitle
     if (!formTitle) return
@@ -96,8 +99,7 @@ class FormEditor extends Component {
   }
 
   freshFormFields() {
-    if (!this.props.el.allFields) return
-    let formFields = [...this.props.el.allFields]
+    let formFields = [...this.props.formFields]
 
     formFields = formFields.filter(
       field => field.formID === this.props.el.selectedFormId
@@ -117,11 +119,11 @@ class FormEditor extends Component {
       const genericName = 'New Form'
       const nameExists = ext => form => form.formTitle === genericName + ext
       // if generic Name isn't taken..
-      if (!this.props.el.forms.find(nameExists(''))) {
+      if (!this.props.forms.find(nameExists(''))) {
         return genericName
       }
       for (let i = 2; true; i++) {
-        if (!this.props.el.forms.find(nameExists(` ${i}`))) {
+        if (!this.props.forms.find(nameExists(` ${i}`))) {
           return `${genericName} ${i}`
         }
       }
@@ -135,24 +137,24 @@ class FormEditor extends Component {
 
   handleAddNewForm() {
     this.setEl({
-      forms: [this.generateNewFormData(), ...this.props.el.forms],
+      forms: [this.generateNewFormData(), ...this.props.forms],
     })
   }
 
   handleDeleteForm(id) {
-    const indexOfForm = this.props.el.forms.findIndex(form => form.id === id)
-    const form = this.props.el.forms[indexOfForm]
+    const indexOfForm = this.props.forms.findIndex(form => form.id === id)
+    const form = this.props.forms[indexOfForm]
 
-    const nxtForms = [...this.props.el.forms]
+    const nxtForms = [...this.props.forms]
     nxtForms.splice(indexOfForm, 1)
     const onDelete = () => {
       let selectedFormId
       // if the form being deleted is active, select the first one
       if (form.id === this.props.el.selectedFormId) {
-        selectedFormId = this.props.el.forms[0]?.id
+        selectedFormId = this.props.forms[0]?.id
         // if the first one was selected, select the second
         if (selectedFormId === this.props.el.selectedFormId) {
-          selectedFormId = this.props.el.forms[1]?.id
+          selectedFormId = this.props.forms[1]?.id
         }
       }
 
@@ -188,7 +190,7 @@ class FormEditor extends Component {
   }
 
   handleFormTitleChange(e) {
-    const nxtForms = [...this.props.el.forms]
+    const nxtForms = [...this.props.forms]
     const formRef = nxtForms.find(
       form => form.id === this.props.el.selectedFormId
     )
@@ -202,7 +204,7 @@ class FormEditor extends Component {
   // this is the callback that receives the FieldSelector node and places it in a modal
   handleInitializeAddFieldSelector(
     FieldSelector,
-    index = this.props.el.formFields.length + 1
+    index = this.props.formFields.length + 1
   ) {
     this.props.setModal({
       header: <>Choose Custom Form Field</>,
@@ -268,7 +270,7 @@ class FormEditor extends Component {
       inputType,
       position: index,
     }
-    let nxtFormFields = [...this.props.el.formFields]
+    let nxtFormFields = [...this.props.formFields]
     nxtFormFields.splice(index, 0, nxtField)
     nxtFormFields = FormEditor.resetFieldPositionVals(nxtFormFields)
     this.setEl({
@@ -285,7 +287,7 @@ class FormEditor extends Component {
   // to set up the modal initially, when edit is requested
   handleEditField(id) {
     // pick out the form field..
-    const formField = this.props.el.formFields.find(field => field.id === id)
+    const formField = this.props.formFields.find(field => field.id === id)
 
     // create the RAM edit object
     this.setEl({
@@ -409,10 +411,10 @@ class FormEditor extends Component {
   }
 
   handleSaveEditField(metadata) {
-    const fieldIndex = this.props.el.formFields.findIndex(
+    const fieldIndex = this.props.formFields.findIndex(
       field => field.id === metadata.id
     )
-    const nextFormFields = [...this.props.el.formFields]
+    const nextFormFields = [...this.props.formFields]
     nextFormFields.splice(fieldIndex, 1, metadata)
 
     this.setEl({ formFields: nextFormFields })
@@ -421,10 +423,10 @@ class FormEditor extends Component {
   handleDeleteField(id) {
     this.setEl({
       formFields: (() => {
-        const fieldIndex = this.props.el.formFields.findIndex(
+        const fieldIndex = this.props.formFields.findIndex(
           field => field.id === id
         )
-        const nextFormFields = [...this.props.el.formFields]
+        const nextFormFields = [...this.props.formFields]
         nextFormFields.splice(fieldIndex, 1)
         return nextFormFields
       })(),
@@ -449,7 +451,7 @@ class FormEditor extends Component {
                   </Text>
                 </>
               }
-              listItems={this.props.el?.forms?.map(form => ({
+              listItems={this.props.forms?.map(form => ({
                 id: form.id,
                 children: (
                   <>
@@ -485,7 +487,7 @@ class FormEditor extends Component {
               {/* Form Fields */}
               {/* -   -   -   -   -   - */}
               <form>
-                {(this.props.el.formFields || []).map((field, index) => (
+                {(this.props.formFields || []).map((field, index) => (
                   <React.Fragment key={field.id}>
                     <AddFormField
                       onReceiveFieldSelector={
@@ -565,11 +567,19 @@ class FormEditor extends Component {
 
 FormEditor.propTypes = {
   setEl: PropTypes.func.isRequired,
+  forms: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+    })
+  ),
+  formFields: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+    })
+  ),
   el: PropTypes.shape({
     formTitle: PropTypes.string,
     addFieldModalOpen: PropTypes.bool,
-    forms: PropTypes.arrayOf(PropTypes.shape({})),
-    formFields: PropTypes.array,
     formFieldEdit: PropTypes.shape({
       options: PropTypes.array,
     }),
@@ -581,6 +591,8 @@ FormEditor.propTypes = {
     modal: PropTypes.shape({}),
   }).isRequired,
   setModal: PropTypes.func,
+  getForms: PropTypes.func.isRequired,
+  getFormFields: PropTypes.func.isRequired,
 }
 FormEditor.defaultProps = {}
 
@@ -596,6 +608,12 @@ const mapDispath = dispatch => ({
   // this is not relate to this.props.el.modal (this sets the app modal)
   setModal: state => {
     dispatch({ type: 'MODAL_SET_STATE', state })
+  },
+  getForms: () => {
+    dispatch(API.getForms)
+  },
+  getFormFields: () => {
+    dispatch(API.getFormFields)
   },
 })
 

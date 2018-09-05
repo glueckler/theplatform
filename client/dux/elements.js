@@ -15,13 +15,7 @@ const componentState = element => {
   stateReducers[containerKey] = reducer
 }
 
-const containers = [
-  'APITest',
-  'FORM_EDITOR',
-  'MODAL',
-  'APP_NAV',
-  'COURSE_INDEX',
-]
+const containers = ['FORM_EDITOR', 'MODAL', 'APP_NAV', 'COURSE_INDEX']
 containers.forEach(element => {
   componentState(element)
 })
