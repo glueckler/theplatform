@@ -27,6 +27,12 @@ class AppNav extends PureComponent {
       navOpen: false,
       showOverlay: false,
     })
+      //------
+    let req = new XMLHttpRequest()
+    req.open("GET", "/api/hey", false)
+    req.send(null)
+    console.log(req.responseText)
+      //--------
 
     this.handleToggleOpen = this.handleToggleOpen.bind(this)
   }
