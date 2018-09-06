@@ -1,19 +1,15 @@
 import { combineReducers } from 'redux'
 import elements from 'dux/elements'
 
-import template, { TEMPLATE } from './template'
-import forms, { FORMS } from './forms'
-import formFields, { FORM_FIELDS } from './formFields'
-
-export const ACTIONS = {
-  TEMPLATE,
-  FORMS,
-  FORM_FIELDS,
-}
+import forms from './forms'
+import formFields from './formFields'
+import courses from './courses'
+import registrants from './registrants'
 
 export default combineReducers({
   ...elements,
-  template,
   forms,
   formFields,
+  courses,
+  registrants,
 })

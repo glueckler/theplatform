@@ -3,7 +3,7 @@ import { commonActionsGen } from './utils'
 const actions = commonActionsGen('FORMS')
 
 // Actions
-export const FORMS = {
+export const formActions = {
   ...actions,
 }
 // Reducers

@@ -4,11 +4,11 @@ import { connect } from 'react-redux'
 import colors from 'utils/colors'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
+import * as API from 'api'
 
 import EntityList from 'components/EntityList'
 import BasicLayout from 'components/BasicLayout'
 import Text, { EdiTitlText } from 'components/Text'
-import Flex from 'components/Flex'
 import DropToggle from 'components/DropToggle'
 
 //
@@ -26,39 +26,6 @@ const fakeFormAnswers = [
     id: '432',
   },
 ]
-const fakeRegistrants = [
-  {
-    name: 'Dean Glueckler',
-    id: '123',
-  },
-  {
-    name: 'Shaun White',
-    id: '231',
-  },
-  {
-    name: 'Space Case',
-    id: '2d31',
-  },
-  {
-    name: 'Jimmy Whales',
-    id: '2dd31',
-  },
-  {
-    name: 'Toad Mcloud',
-    id: '2dd313',
-  },
-  {
-    name: 'Cookie Monsta',
-    id: '2dd3133',
-  },
-  {
-    name: 'Donald Dee',
-    id: '2dd31335',
-  },
-]
-//
-//
-//
 
 // styled Components
 let CourseDetailSection
@@ -73,9 +40,13 @@ class CourseIndex extends PureComponent {
       courses: require('client/examples/fakeCourses'),
     })
     this.COURSE =
-      this.props.el.courses?.find(
-        c => c.id === this.props.el.selectedCourseId
-      ) || {}
+      this.props.courses?.find(c => c.id === this.props.el.selectedCourseId) ||
+      {}
+  }
+
+  componentDidMount() {
+    this.props.getCourses()
+    this.props.getRegistrants()
   }
 
   renderCourseList() {
@@ -91,7 +62,7 @@ class CourseIndex extends PureComponent {
             </Text>
           </>
         }
-        listItems={this.props.el?.courses?.map(course => ({
+        listItems={this.props.courses.map(course => ({
           id: course.id,
           children: (
             <>
@@ -133,9 +104,8 @@ class CourseIndex extends PureComponent {
   renderCourse() {
     // update the course value.. keep it freshh
     this.COURSE =
-      this.props.el.courses?.find(
-        c => c.id === this.props.el.selectedCourseId
-      ) || {}
+      this.props.courses?.find(c => c.id === this.props.el.selectedCourseId) ||
+      {}
 
     //
     // S t y l e s
@@ -177,7 +147,7 @@ class CourseIndex extends PureComponent {
             Registrants
           </Text>
         </CourseDetailSection>
-        {fakeRegistrants.map(person => {
+        {this.props.registrants.map(person => {
           return (
             <DropToggle
               key={person.id}
@@ -208,20 +178,27 @@ class CourseIndex extends PureComponent {
 CourseIndex.propTypes = {
   setEl: PropTypes.func,
   el: PropTypes.shape({
-    courses: PropTypes.arrayOf(PropTypes.shape({})),
     selectedCourseId: PropTypes.string,
   }),
+  registrants: PropTypes.arrayOf(PropTypes.shape({})),
+  courses: PropTypes.arrayOf(PropTypes.shape({})),
+  getCourses: PropTypes.func.isRequired,
+  getRegistrants: PropTypes.func.isRequired,
 }
 CourseIndex.defaultProps = {}
 
 const mapState = state => ({
   el: state.elCOURSE_INDEX,
+  courses: state.courses,
+  registrants: state.registrants,
 })
 
 const mapDispatch = dispatch => ({
   setEl: state => {
     dispatch({ type: 'COURSE_INDEX_SET_STATE', state })
   },
+  getCourses: () => dispatch(API.getCourses),
+  getRegistrants: () => dispatch(API.getRegistrants),
 })
 
 export default connect(

@@ -568,9 +568,11 @@ FormEditor.propTypes = {
   getForms: PropTypes.func.isRequired,
   updateForm: PropTypes.func.isRequired,
   createForm: PropTypes.func.isRequired,
+  deleteForm: PropTypes.func.isRequired,
   createField: PropTypes.func.isRequired,
   getFormFields: PropTypes.func.isRequired,
   updateField: PropTypes.func.isRequired,
+  deleteField: PropTypes.func.isRequired,
 }
 FormEditor.defaultProps = {}
 

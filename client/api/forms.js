@@ -1,6 +1,6 @@
 import axios from 'axios'
-import dispatchData from './dispatchData'
-import { ACTIONS as A } from 'dux'
+import { dispatchData } from './utils'
+import { formActions as A } from 'dux/forms'
 
 // Forms
 export const getForms = dispatch => {
@@ -13,7 +13,7 @@ export const getForms = dispatch => {
   })
 
   return fake.then(data => {
-    dispatch(dispatchData(A.FORMS.LOAD, data))
+    dispatch(dispatchData(A.LOAD, data))
   })
 }
 
@@ -25,7 +25,7 @@ export const updateForm = ({ id, nextForms }) => dispatch => {
   })
 
   fake.then(data => {
-    dispatch(dispatchData(A.FORMS.UPDATE, data))
+    dispatch(dispatchData(A.UPDATE, data))
   })
 }
 
@@ -36,7 +36,7 @@ export const createForm = ({ newForm }) => dispatch => {
     }, 500)
   })
   fake.then(data => {
-    dispatch(dispatchData(A.FORMS.CREATE, data))
+    dispatch(dispatchData(A.CREATE, data))
   })
 }
 
@@ -47,6 +47,6 @@ export const deleteForm = ({ id, nxtForms }) => dispatch => {
     }, 700)
   })
   fake.then(data => {
-    dispatch(dispatchData(A.FORMS.DELETE, data))
+    dispatch(dispatchData(A.DELETE, data))
   })
 }
