@@ -1,18 +1,23 @@
+import { commonActionsGen } from './utils'
+
+const actions = commonActionsGen('FORMS')
+
 // Actions
-const LOAD = 'FORMS_LOAD'
-
 export const FORMS = {
-  LOAD,
+  ...actions,
 }
-
 // Reducers
 export default (state = [], action) => {
-  switch (action.type) {
-    case LOAD: {
-      return [...state, ...action.data]
-    }
-    default: {
-      return state
-    }
+  if (action.type === actions.LOAD || action.type === actions.UPDATE) {
+    return [...action.data]
   }
+  if (action.type === actions.CREATE) {
+    return [...state, action.data]
+  }
+  if (action.type === actions.DELETE) {
+    return [...action.data]
+  }
+
+  // default
+  return state
 }

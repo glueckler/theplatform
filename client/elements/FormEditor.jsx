@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { ifDiffProps } from 'yoots'
 import colors from 'utils/colors'
 import * as API from 'api'
 
@@ -19,26 +18,24 @@ class FormEditor extends Component {
   static isFieldMetadataSaveEnabled(metadata) {
     const meta = metadata?.fieldMetadata
     const inputType = metadata?.inputType
+    const FIELD_TYPES = FormField.getFields()
 
+    // these conditions apply to any input
     if (!meta || !inputType) {
       return false
     }
     if (meta.label === '') {
       return false
     }
+
+    // the following conditions dont apply to text inputs
+    if ([FIELD_TYPES.TEXTAREA, FIELD_TYPES.TEXTINPUT].includes(inputType)) {
+      return true
+    }
     if (meta.options?.indexOf('') !== -1) {
       return false
     }
     return true
-  }
-
-  static resetFieldPositionVals(fields) {
-    const nxt = [...fields]
-
-    nxt.forEach((field, index) => {
-      field.position = index
-    })
-    return nxt
   }
 
   constructor(props) {
@@ -49,10 +46,9 @@ class FormEditor extends Component {
     this.setEl({
       newFormFieldMetadata: {},
       addFieldModalOpen: false,
-      selectedFormId: '123',
+      selectedFormId: '',
       formTitle: '',
       formFields: [],
-      allFields: require('client/examples/fakeFormFields.js'),
       formFieldEdit: {},
     })
 
@@ -73,44 +69,30 @@ class FormEditor extends Component {
   }
 
   componentDidMount() {
-    this.freshFormTitle()
-    this.freshFormFields()
     // init requests
-    this.props.getForms()
+    this.props.getForms().then(() => {
+      this.setEl({
+        selectedFormId: this.props.forms[0]?.id,
+      })
+    })
     this.props.getFormFields()
   }
 
-  componentDidUpdate(prevProps) {
-    const ifDiff = ifDiffProps(prevProps.el, this.props.el)
-    ifDiff('selectedFormId', () => {
-      this.freshFormTitle()
-      this.freshFormFields()
-    })
-  }
-
-  freshFormTitle() {
-    const formTitle = this.props.forms?.find(
+  get currentFormTitle() {
+    return this.props.forms?.find(
       form => form.id === this.props.el.selectedFormId
     )?.formTitle
-    if (!formTitle) return
-    this.setEl({
-      formTitle,
-    })
   }
 
-  freshFormFields() {
-    let formFields = [...this.props.formFields]
-
-    formFields = formFields.filter(
-      field => field.formID === this.props.el.selectedFormId
+  get sortedFields() {
+    return (
+      this.props.formFields
+        .filter(field => field.formID === this.props.el.selectedFormId)
+        .sort(
+          (fieldA, fieldB) =>
+            parseInt(fieldA.position) - parseInt(fieldB.position)
+        ) || []
     )
-    formFields.sort(
-      (fieldA, fieldB) => parseInt(fieldA.position) - parseInt(fieldB.position)
-    )
-
-    this.setEl({
-      formFields,
-    })
   }
 
   generateNewFormData() {
@@ -136,9 +118,7 @@ class FormEditor extends Component {
   }
 
   handleAddNewForm() {
-    this.setEl({
-      forms: [this.generateNewFormData(), ...this.props.forms],
-    })
+    this.props.createForm({ newForm: this.generateNewFormData() })
   }
 
   handleDeleteForm(id) {
@@ -158,15 +138,17 @@ class FormEditor extends Component {
         }
       }
 
+      // TODO: asdf (dean)
+      // with an api the delete would likely return the collection again
+      // we fake that with nxtForms
+      this.props.deleteForm({ id, nxtForms })
+
       this.setEl({
-        forms: nxtForms,
         selectedFormId,
       })
       this.props.setModal({
         open: false,
       })
-      this.freshFormFields()
-      this.freshFormTitle()
     }
 
     this.props.setModal({
@@ -185,20 +167,15 @@ class FormEditor extends Component {
 
   handleFormListOnChange(nextFormId) {
     this.setEl({ selectedFormId: nextFormId })
-    this.freshFormTitle()
-    this.freshFormFields()
   }
 
   handleFormTitleChange(e) {
-    const nxtForms = [...this.props.forms]
-    const formRef = nxtForms.find(
+    const nextForms = [...this.props.forms]
+    const formRef = nextForms.find(
       form => form.id === this.props.el.selectedFormId
     )
     formRef.formTitle = e.target.value || formRef.formTitle
-    this.props.setEl({
-      forms: nxtForms,
-    })
-    this.freshFormTitle()
+    this.props.updateForm({ nextForms })
   }
 
   // this is the callback that receives the FieldSelector node and places it in a modal
@@ -260,6 +237,7 @@ class FormEditor extends Component {
     if (
       !FormEditor.isFieldMetadataSaveEnabled(this.props.el.newFormFieldMetadata)
     ) {
+      // eslint-disable-next-line no-console
       console.error('insufficient data to create form field')
       return
     }
@@ -270,11 +248,10 @@ class FormEditor extends Component {
       inputType,
       position: index,
     }
-    let nxtFormFields = [...this.props.formFields]
-    nxtFormFields.splice(index, 0, nxtField)
-    nxtFormFields = FormEditor.resetFieldPositionVals(nxtFormFields)
+
+    this.props.createField({ nxtField })
+
     this.setEl({
-      formFields: nxtFormFields,
       newFormFieldMetadata: {},
     })
 
@@ -417,28 +394,23 @@ class FormEditor extends Component {
     const nextFormFields = [...this.props.formFields]
     nextFormFields.splice(fieldIndex, 1, metadata)
 
-    this.setEl({ formFields: nextFormFields })
+    this.props.updateField({ nextFormFields })
   }
 
   handleDeleteField(id) {
-    this.setEl({
-      formFields: (() => {
-        const fieldIndex = this.props.formFields.findIndex(
-          field => field.id === id
-        )
-        const nextFormFields = [...this.props.formFields]
-        nextFormFields.splice(fieldIndex, 1)
-        // TODO: asdf (dean)
-        debugger
-        return nextFormFields
-      })(),
-    })
+    const nxtFormFields = (() => {
+      const fieldIndex = this.props.formFields.findIndex(
+        field => field.id === id
+      )
+      const nextFormFields = [...this.props.formFields]
+      nextFormFields.splice(fieldIndex, 1)
+      return nextFormFields
+    })()
+    this.props.deleteField({ id, nxtFormFields })
     this.props.setModal({ open: false })
   }
 
   render() {
-    // TODO: asdf (dean)
-    debugger
     return (
       <>
         <Modal {...this.props.el.modal} />
@@ -481,17 +453,15 @@ class FormEditor extends Component {
             <>
               {/* Form Title */}
               {/* -   -   -   -   -   - */}
-              {this.props.el.formTitle !== undefined && (
-                <EdiTitlText
-                  content={this.props.el.formTitle}
-                  placeholder="Form Title"
-                  onChange={this.handleFormTitleChange}
-                />
-              )}
+              <EdiTitlText
+                content={this.currentFormTitle}
+                placeholder="Form Title"
+                onChange={this.handleFormTitleChange}
+              />
               {/* Form Fields */}
               {/* -   -   -   -   -   - */}
               <form>
-                {(this.props.formFields || []).map((field, index) => (
+                {this.sortedFields.map((field, index) => (
                   <React.Fragment key={field.id}>
                     <AddFormField
                       onReceiveFieldSelector={
@@ -596,7 +566,11 @@ FormEditor.propTypes = {
   }).isRequired,
   setModal: PropTypes.func,
   getForms: PropTypes.func.isRequired,
+  updateForm: PropTypes.func.isRequired,
+  createForm: PropTypes.func.isRequired,
+  createField: PropTypes.func.isRequired,
   getFormFields: PropTypes.func.isRequired,
+  updateField: PropTypes.func.isRequired,
 }
 FormEditor.defaultProps = {}
 
@@ -613,12 +587,14 @@ const mapDispath = dispatch => ({
   setModal: state => {
     dispatch({ type: 'MODAL_SET_STATE', state })
   },
-  getForms: () => {
-    dispatch(API.getForms)
-  },
-  getFormFields: () => {
-    dispatch(API.getFormFields)
-  },
+  getForms: () => dispatch(API.getForms),
+  updateForm: meta => dispatch(API.updateForm(meta)),
+  createForm: newForm => dispatch(API.createForm(newForm)),
+  deleteForm: id => dispatch(API.deleteForm(id)),
+  getFormFields: () => dispatch(API.getFormFields),
+  createField: meta => dispatch(API.createFormField(meta)),
+  updateField: meta => dispatch(API.updateFormField(meta)),
+  deleteField: meta => dispatch(API.deleteFormField(meta)),
 })
 
 export default connect(

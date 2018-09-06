@@ -1,18 +1,21 @@
-// Actions
-const LOAD = 'FORM_FIELDS_LOAD'
+import { commonActionsGen } from './utils'
 
+// Actions
+const actions = commonActionsGen('FORM_FIELDS')
 export const FORM_FIELDS = {
-  LOAD,
+  ...actions,
 }
 
 // Reducers
 export default (state = [], action) => {
-  switch (action.type) {
-    case LOAD: {
-      return [...state, ...action.data]
-    }
-    default: {
-      return state
-    }
+  if (action.type === actions.LOAD) {
+    return [...state, ...action.data]
   }
+  if (action.type === actions.CREATE) {
+    return [...state, action.data]
+  }
+  if (action.type === actions.UPDATE || action.type === actions.DELETE) {
+    return [...action.data]
+  }
+  return state
 }
