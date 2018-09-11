@@ -101,8 +101,11 @@ class TextInput extends PureComponent {
 }
 
 TextInput.propTypes = {
+  // name: for event identifaction purposes
   name: PropTypes.string,
+  // label: displayed above the text input
   label: PropTypes.string,
+  // placeholder text
   placeholder: PropTypes.string,
   id: PropTypes.string,
   helperText: PropTypes.string,

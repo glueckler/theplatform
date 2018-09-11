@@ -1,14 +1,24 @@
 import { commonActionsGen } from './utils'
 
-const actions = commonActionsGen('COURSES')
+const A = commonActionsGen('COURSES')
 
 // Actions
 export const coursesActions = {
-  ...actions,
+  ...A,
 }
 
 export default (state = [], action) => {
-  if (action.type === actions.LOAD) {
+  if (action.type === A.LOAD) {
+    return [...action.data]
+  }
+  if (action.type === A.UPDATE) {
+    // action.data will be an updated course (obj)
+    const nxt = [...state]
+    const i = nxt.findIndex(course => course.id === action.data.id)
+    nxt[i] = action.data
+    return nxt
+  }
+  if (action.type === A.DELETE) {
     return [...action.data]
   }
   return state

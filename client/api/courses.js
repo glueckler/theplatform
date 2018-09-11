@@ -11,3 +11,27 @@ export const getCourses = dispatch => {
     dispatch(dispatchData(A.LOAD, data))
   })
 }
+
+export const updateCourse = ({ id, nxtCourse }) => dispatch => {
+  const fake = new Promise(resolve => {
+    setTimeout(() => {
+      resolve(nxtCourse)
+    }, 500)
+  })
+
+  fake.then(data => {
+    dispatch(dispatchData(A.UPDATE, data))
+  })
+}
+
+export const deleteCourse = ({ id, nxtCourses }) => dispatch => {
+  const fake = new Promise(resolve => {
+    setTimeout(() => {
+      resolve(nxtCourses)
+    }, 500)
+  })
+
+  return fake.then(data => {
+    dispatch(dispatchData(A.DELETE, data))
+  })
+}

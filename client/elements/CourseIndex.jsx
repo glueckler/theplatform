@@ -6,10 +6,13 @@ import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import * as API from 'api'
 
+import Modal from 'components/Modal'
 import EntityList from 'components/EntityList'
 import BasicLayout from 'components/BasicLayout'
 import Text, { EdiTitlText } from 'components/Text'
 import DropToggle from 'components/DropToggle'
+import Button from 'components/Button'
+import TextInput from 'components/TextInput'
 
 //
 //
@@ -38,15 +41,122 @@ class CourseIndex extends PureComponent {
     this.setEl({
       selectedCourseId: '321',
       courses: require('client/examples/fakeCourses'),
+      addCourseRAM: {},
     })
+
+    // use this.COURSE to reference the current course.  Updated during render()
     this.COURSE =
       this.props.courses?.find(c => c.id === this.props.el.selectedCourseId) ||
       {}
+
+    this.handleCourseOnChange = this.handleCourseOnChange.bind(this)
+    this.handleCourseTitleChange = this.handleCourseTitleChange.bind(this)
+    this.handleDeleteCourse = this.handleDeleteCourse.bind(this)
+    this.handleAddNewCourse = this.handleAddNewCourse.bind(this)
   }
 
   componentDidMount() {
     this.props.getCourses()
     this.props.getRegistrants()
+  }
+
+  selectCourseById(id, firstInList) {
+    let nxtId = id
+    if (firstInList) {
+      nxtId = this.props.courses[0]?.id
+    }
+    this.setEl({
+      selectedCourseId: nxtId,
+    })
+  }
+
+  handleAddNewCourse() {
+    this.setEl({
+      addCourseRAM: {
+        id: Date(),
+        courseTitle: 'New Course',
+        formTemplateId: '',
+        courseDate: '',
+        location: '',
+      },
+    })
+
+    const setData = nxt => {
+      this.setEl({
+        addCourseRAM: {
+          ...this.props.el.addCourseRAM,
+          ...nxt,
+        },
+      })
+    }
+
+    const modal = {
+      open: true,
+      header: <>Create Course</>,
+      content: (
+        <div style={{ margin: '.4rem 0' }}>
+          <TextInput
+            label="Course Name"
+            onChange={e => {
+              setData({ courseTitle: e.target.value })
+            }}
+            value={this.props.el.addCourseRAM.courseTitle}
+          />
+          <TextInput
+            label="Course Date"
+            onChange={e => {
+              setData({ courseDate: e.target.value })
+            }}
+            value={this.props.el.addCourseRAM.courseDate}
+          />
+          <TextInput
+            label="Location"
+            onChange={e => {
+              setData({ location: e.target.value })
+            }}
+            value={this.props.el.addCourseRAM.location}
+          />
+        </div>
+      ),
+      buttons: (
+        <>
+          <Button disabled onClick={this.handleAddCourseSave}>
+            save
+          </Button>
+        </>
+      ),
+      onCancel: () => {
+        this.setEl({
+          modal: {
+            open: false,
+          },
+        })
+      },
+    }
+
+    this.setEl({
+      modal,
+    })
+  }
+
+  handleCourseOnChange(selectedCourseId) {
+    this.setEl({
+      selectedCourseId,
+    })
+  }
+
+  handleCourseTitleChange(e) {
+    const nxtCourse = { ...this.COURSE, courseTitle: e.target.value }
+    this.props.dispatch(API.updateCourse({ nxtCourse }))
+  }
+
+  handleDeleteCourse(id) {
+    const nxtCourses = [...this.props.courses]
+    const i = nxtCourses.findIndex(course => course.id === id)
+    nxtCourses.splice(i, 1)
+    this.props.dispatch(API.deleteCourse({ nxtCourses })).then(() => {
+      this.selectCourseById(null, 'first available')
+    })
   }
 
   renderCourseList() {
@@ -57,7 +167,7 @@ class CourseIndex extends PureComponent {
             <Text zeroMargin variant="h3">
               Courses
             </Text>
-            <Text onClick={this.handleAddNewForm} zeroMargin link>
+            <Text onClick={this.handleAddNewCourse} zeroMargin link>
               New Course
             </Text>
           </>
@@ -68,7 +178,9 @@ class CourseIndex extends PureComponent {
             <>
               <Text vairant="h4">{course.courseTitle}</Text>
               <Text
-                onClick={() => {}}
+                onClick={() => {
+                  this.handleDeleteCourse(course.id)
+                }}
                 zeroMargin
                 link
                 style={{ color: colors.btnDanger }}
@@ -79,7 +191,7 @@ class CourseIndex extends PureComponent {
           ),
         }))}
         selectedId={this.props.el.selectedCourseId}
-        onChange={() => {}}
+        onChange={this.handleCourseOnChange}
       />
     )
   }
@@ -160,12 +272,10 @@ class CourseIndex extends PureComponent {
     )
   }
 
-  renderModal() {}
-
   render() {
     return (
       <>
-        {this.renderModal()}
+        <Modal {...this.props.el.modal} />
         <BasicLayout
           menuChildren={this.renderCourseList()}
           displayChildren={this.renderCourse()}
@@ -179,11 +289,22 @@ CourseIndex.propTypes = {
   setEl: PropTypes.func,
   el: PropTypes.shape({
     selectedCourseId: PropTypes.string,
+    modal: PropTypes.shape({}),
+    addCourseRAM: PropTypes.shape({
+      courseTitle: PropTypes.string,
+      courseDate: PropTypes.string,
+      location: PropTypes.string,
+    }),
   }),
   registrants: PropTypes.arrayOf(PropTypes.shape({})),
-  courses: PropTypes.arrayOf(PropTypes.shape({})),
+  courses: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+    })
+  ),
   getCourses: PropTypes.func.isRequired,
   getRegistrants: PropTypes.func.isRequired,
+  dispatch: PropTypes.func,
 }
 CourseIndex.defaultProps = {}
 
@@ -194,9 +315,11 @@ const mapState = state => ({
 })
 
 const mapDispatch = dispatch => ({
+  dispatch,
   setEl: state => {
     dispatch({ type: 'COURSE_INDEX_SET_STATE', state })
   },
+  // stop doing this please.. use this.props.dispatch(..your code)
   getCourses: () => dispatch(API.getCourses),
   getRegistrants: () => dispatch(API.getRegistrants),
 })
