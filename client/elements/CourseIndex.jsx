@@ -6,6 +6,8 @@ import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import * as API from 'api'
 
+import moment from 'moment'
+import DatePicker from 'components/DatePicker'
 import Modal from 'components/Modal'
 import EntityList from 'components/EntityList'
 import BasicLayout from 'components/BasicLayout'
@@ -60,6 +62,12 @@ class CourseIndex extends PureComponent {
     this.props.getRegistrants()
   }
 
+  get filteredRegistrants() {
+    if (!this.props.registrants) return []
+    const registrants = this.COURSE.registrants
+    return this.props.registrants.filter(({ id }) => registrants.includes(id))
+  }
+
   selectCourseById(id, firstInList) {
     let nxtId = id
     if (firstInList) {
@@ -102,12 +110,12 @@ class CourseIndex extends PureComponent {
             }}
             value={this.props.el.addCourseRAM.courseTitle}
           />
-          <TextInput
+          <DatePicker
             label="Course Date"
-            onChange={e => {
-              setData({ courseDate: e.target.value })
+            value={new Date()}
+            onChange={date => {
+              setData({ courseDate: date })
             }}
-            value={this.props.el.addCourseRAM.courseDate}
           />
           <TextInput
             label="Location"
@@ -255,11 +263,16 @@ class CourseIndex extends PureComponent {
           )}
         </CourseDetailSection>
         <CourseDetailSection>
+          <Text zeroMargin variant="h5">
+            Location: {this.COURSE.location}
+          </Text>
+        </CourseDetailSection>
+        <CourseDetailSection>
           <Text variant="h5" zeroMargin>
             Registrants
           </Text>
         </CourseDetailSection>
-        {this.props.registrants.map(person => {
+        {this.filteredRegistrants.map(person => {
           return (
             <DropToggle
               key={person.id}
