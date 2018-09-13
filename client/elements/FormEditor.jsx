@@ -117,8 +117,13 @@ class FormEditor extends Component {
     }
   }
 
-  handleAddNewForm() {
-    this.props.createForm({ newForm: this.generateNewFormData() })
+  async handleAddNewForm() {
+    const newForm = await this.props.createForm({
+      newForm: this.generateNewFormData(),
+    })
+    if (newForm?.id) {
+      this.setEl({ selectedFormId: newForm?.id })
+    }
   }
 
   handleDeleteForm(id) {
@@ -231,8 +236,11 @@ class FormEditor extends Component {
     })
   }
 
-  handleAddFieldSave(_, index) {
-    const meta = this.props.el.newFormFieldMetadata.fieldMetadata
+  handleAddFieldSave(_event, index) {
+    const meta = {
+      ...this.props.el.newFormFieldMetadata.fieldMetadata,
+      formID: this.props.el.selectedFormId,
+    }
     const inputType = this.props.el.newFormFieldMetadata.inputType
     if (
       !FormEditor.isFieldMetadataSaveEnabled(this.props.el.newFormFieldMetadata)

@@ -35,8 +35,9 @@ export const createForm = ({ newForm }) => dispatch => {
       resolve(newForm)
     }, 500)
   })
-  fake.then(data => {
+  return fake.then(data => {
     dispatch(dispatchData(A.CREATE, data))
+    return data
   })
 }
 

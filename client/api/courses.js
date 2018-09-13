@@ -7,7 +7,7 @@ export const getCourses = dispatch => {
       resolve(require('client/examples/fakeCourses'))
     }, 800)
   })
-  fake.then(data => {
+  return fake.then(data => {
     dispatch(dispatchData(A.LOAD, data))
   })
 }

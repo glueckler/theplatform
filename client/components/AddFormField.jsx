@@ -39,7 +39,7 @@ class FieldSelector extends PureComponent {
       placeholder,
       defaultValue: placeholder,
       options: [placeholder, 'Another Example', 'Etc example'],
-      formID: randomHex(),
+      id: randomHex(),
     }
     this.state = {
       fieldMetadata,
@@ -257,9 +257,6 @@ class AddFormField extends PureComponent {
       >
         {this.props.children}
       </AddFieldBar>
-      // <DropDown open={this.state.open}>
-      //   This is the dropdown
-      // </DropDown>
     )
   }
 }

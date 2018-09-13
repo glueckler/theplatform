@@ -18,21 +18,8 @@ import Button from 'components/Button'
 import TextInput from 'components/TextInput'
 import Select, { SelectOption } from 'components/Select'
 
-//
-//
-//
-const fakeFormAnswers = [
-  {
-    field: 'how tall are you?',
-    value: 'seven feet',
-    id: '123',
-  },
-  {
-    field: 'Do you like toast?',
-    value: 'I prefer it in the morning especially on saturdays',
-    id: '432',
-  },
-]
+import fakeAnswers123 from 'client/examples/fakeAnswers123'
+import fakeAnswers122 from 'client/examples/fakeAnswers122'
 
 // styled Components
 let CourseDetailSection
@@ -43,7 +30,7 @@ class CourseIndex extends PureComponent {
 
     this.setEl = props.setEl
     this.setEl({
-      selectedCourseId: '321',
+      selectedCourseId: '',
       courses: require('client/examples/fakeCourses'),
     })
 
@@ -59,20 +46,25 @@ class CourseIndex extends PureComponent {
   }
 
   async componentDidMount() {
-    console.log(`are we waiting ${Date.now()}`)
     await this.props.getForms()
-    console.log(`yes we are ${Date.now()}`)
-    this.props.getCourses()
+    await this.props.getCourses()
     this.props.getRegistrants()
 
     // this depends on data from fetching the forms
     this.freshNewCourseRAM()
+    // this depends on data from fetching courses
+    this.selectCourseById(null, 'first')
   }
 
   get filteredRegistrants() {
     if (!this.props.registrants) return []
     const registrants = this.COURSE.registrants
-    return this.props.registrants.filter(({ id }) => registrants.includes(id))
+    return this.props.registrants.filter(({ id }) => registrants?.includes(id))
+  }
+
+  getFormTemplateValueFromId(courseData) {
+    return Y.find(Y.propEq('id', courseData.formTemplateId))(this.props.forms)
+      ?.formTitle
   }
 
   selectCourseById(id, firstInList) {
@@ -191,11 +183,6 @@ class CourseIndex extends PureComponent {
     }
   }
 
-  getFormTemplateValueFromId(courseData) {
-    return Y.find(Y.propEq('id', courseData.formTemplateId))(this.props.forms)
-      ?.formTitle
-  }
-
   handleAddNewCourse() {
     this.freshNewCourseRAM()
 
@@ -289,6 +276,10 @@ class CourseIndex extends PureComponent {
   }
 
   renderRegistrantContent(id) {
+    const fakeFormAnswers = Y.cond([
+      [Y.propEq('formTemplateId', '122'), () => fakeAnswers122],
+      [Y.propEq('formTemplateId', '123'), () => fakeAnswers123],
+    ])(this.COURSE)
     return fakeFormAnswers.map(field => (
       <div
         key={field.id}
@@ -341,7 +332,7 @@ class CourseIndex extends PureComponent {
             Course Link:
           </Text>
           {this.COURSE.courseLink && (
-            <Link className="text-ellipsis" to={this.COURSE.courseLink}>
+            <Link className="text-ellipsis" to="#">
               {this.COURSE.courseLink}
             </Link>
           )}
