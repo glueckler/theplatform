@@ -12,6 +12,18 @@ export const getCourses = dispatch => {
   })
 }
 
+export const addCourse = ({ courseData }) => dispatch => {
+  const fake = new Promise(resolve => {
+    setTimeout(() => {
+      resolve(courseData)
+    }, 500)
+  })
+
+  fake.then(data => {
+    dispatch(dispatchData(A.CREATE, data))
+  })
+}
+
 export const updateCourse = ({ id, nxtCourse }) => dispatch => {
   const fake = new Promise(resolve => {
     setTimeout(() => {

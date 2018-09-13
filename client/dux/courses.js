@@ -11,6 +11,9 @@ export default (state = [], action) => {
   if (action.type === A.LOAD) {
     return [...action.data]
   }
+  if (action.type === A.CREATE) {
+    return [...state, action.data]
+  }
   if (action.type === A.UPDATE) {
     // action.data will be an updated course (obj)
     const nxt = [...state]

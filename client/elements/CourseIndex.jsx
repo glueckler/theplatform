@@ -5,6 +5,7 @@ import colors from 'utils/colors'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import * as API from 'api'
+import Y from 'yoots'
 
 import moment from 'moment'
 import DatePicker from 'components/DatePicker'
@@ -15,6 +16,7 @@ import Text, { EdiTitlText } from 'components/Text'
 import DropToggle from 'components/DropToggle'
 import Button from 'components/Button'
 import TextInput from 'components/TextInput'
+import Select, { SelectOption } from 'components/Select'
 
 //
 //
@@ -43,7 +45,6 @@ class CourseIndex extends PureComponent {
     this.setEl({
       selectedCourseId: '321',
       courses: require('client/examples/fakeCourses'),
-      addCourseRAM: {},
     })
 
     // use this.COURSE to reference the current course.  Updated during render()
@@ -57,9 +58,15 @@ class CourseIndex extends PureComponent {
     this.handleAddNewCourse = this.handleAddNewCourse.bind(this)
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    console.log(`are we waiting ${Date.now()}`)
+    await this.props.getForms()
+    console.log(`yes we are ${Date.now()}`)
     this.props.getCourses()
     this.props.getRegistrants()
+
+    // this depends on data from fetching the forms
+    this.freshNewCourseRAM()
   }
 
   get filteredRegistrants() {
@@ -78,27 +85,55 @@ class CourseIndex extends PureComponent {
     })
   }
 
-  handleAddNewCourse() {
+  // set default New Course data here
+  freshNewCourseRAM() {
+    const addCourseRAM = {
+      id: Date(),
+      courseTitle: 'New Course',
+      formTemplateId: this.props.forms[0]?.formTitle,
+      courseDate: [new Date()],
+      location: '',
+      registrants: [],
+      courseLink: `https://theplatform.com/?q=long+url&${Date().replace(
+        / /g,
+        ''
+      )}`,
+    }
     this.setEl({
-      addCourseRAM: {
-        id: Date(),
-        courseTitle: 'New Course',
-        formTemplateId: '',
-        courseDate: '',
-        location: '',
-      },
+      addCourseRAM,
     })
+  }
 
-    const setData = nxt => {
+  generateNewCourseModal(courseData) {
+    const validateSave = data => {
+      // let's get functional..
+      // return true to disable button, if any test fail return true
+      const empLocation = Y.propSatisfies(Y.isEmpty(), 'location')
+      const empTitle = Y.propSatisfies(Y.isEmpty(), 'courseTitle')
+
+      return Y.anyPass([empTitle, empLocation])(data)
+    }
+
+    const onCancel = () => {
       this.setEl({
-        addCourseRAM: {
-          ...this.props.el.addCourseRAM,
-          ...nxt,
+        modal: {
+          open: false,
         },
       })
     }
 
-    const modal = {
+    const setData = nxt => {
+      const addCourseRAM = {
+        ...this.props.el.addCourseRAM,
+        ...nxt,
+      }
+      this.setEl({
+        addCourseRAM,
+        modal: this.generateNewCourseModal(addCourseRAM),
+      })
+    }
+
+    return {
       open: true,
       header: <>Create Course</>,
       content: (
@@ -108,11 +143,10 @@ class CourseIndex extends PureComponent {
             onChange={e => {
               setData({ courseTitle: e.target.value })
             }}
-            value={this.props.el.addCourseRAM.courseTitle}
+            value={courseData.courseTitle}
           />
           <DatePicker
             label="Course Date"
-            value={new Date()}
             onChange={date => {
               setData({ courseDate: date })
             }}
@@ -122,29 +156,62 @@ class CourseIndex extends PureComponent {
             onChange={e => {
               setData({ location: e.target.value })
             }}
-            value={this.props.el.addCourseRAM.location}
+            value={courseData.location}
           />
+          <Select
+            onChange={e => {
+              const value = e.target.value
+              const id = Y.find(Y.propEq('formTitle', value))(this.props.forms)
+                ?.id
+              setData({ formTemplateId: id })
+            }}
+            value={this.getFormTemplateValueFromId(courseData.id)}
+            label="Choose Form Template"
+          >
+            {this.props.forms.map(form => (
+              <SelectOption>{form.formTitle}</SelectOption>
+            ))}
+          </Select>
         </div>
       ),
       buttons: (
         <>
-          <Button disabled onClick={this.handleAddCourseSave}>
+          <Button
+            disabled={validateSave(courseData)}
+            onClick={() => {
+              this.handleSaveNewCourse(courseData)
+            }}
+          >
             save
           </Button>
+          <Button onClick={onCancel}>cancel</Button>
         </>
       ),
-      onCancel: () => {
-        this.setEl({
-          modal: {
-            open: false,
-          },
-        })
-      },
+      onCancel,
     }
+  }
+
+  getFormTemplateValueFromId(courseData) {
+    return Y.find(Y.propEq('id', courseData.formTemplateId))(this.props.forms)
+      ?.formTitle
+  }
+
+  handleAddNewCourse() {
+    this.freshNewCourseRAM()
+
+    const modal = this.generateNewCourseModal(this.props.el.addCourseRAM)
 
     this.setEl({
       modal,
     })
+  }
+
+  handleSaveNewCourse(courseData) {
+    this.props.dispatch(API.addCourse({ courseData }))
+    this.setEl({
+      modal: { open: false },
+    })
+    this.freshNewCourseRAM()
   }
 
   handleCourseOnChange(selectedCourseId) {
@@ -155,7 +222,24 @@ class CourseIndex extends PureComponent {
 
   handleCourseTitleChange(e) {
     const nxtCourse = { ...this.COURSE, courseTitle: e.target.value }
-    this.props.dispatch(API.updateCourse({ nxtCourse }))
+
+    const handleEmpty = () => {
+      this.props.setModal({
+        open: true,
+        header: <>Warning</>,
+        content: <Text>Course name can not be empty..</Text>,
+      })
+    }
+
+    Y.cond([
+      [Y.propEq('courseTitle', ''), handleEmpty],
+      [
+        Y.T,
+        () => {
+          this.props.dispatch(API.updateCourse({ nxtCourse }))
+        },
+      ],
+    ])(nxtCourse)
   }
 
   handleDeleteCourse(id) {
@@ -268,19 +352,25 @@ class CourseIndex extends PureComponent {
           </Text>
         </CourseDetailSection>
         <CourseDetailSection>
+          <Text zeroMargin variant="h5">
+            Form Template: {this.getFormTemplateValueFromId(this.COURSE)}
+          </Text>
+        </CourseDetailSection>
+        <CourseDetailSection>
           <Text variant="h5" zeroMargin>
             Registrants
           </Text>
         </CourseDetailSection>
-        {this.filteredRegistrants.map(person => {
-          return (
-            <DropToggle
-              key={person.id}
-              header={person.name}
-              content={this.renderRegistrantContent(person.id)}
-            />
-          )
-        })}
+        {this.filteredRegistrants.map(person => (
+          <DropToggle
+            key={person.id}
+            header={person.name}
+            content={this.renderRegistrantContent(person.id)}
+          />
+        ))}
+        {this.filteredRegistrants.length === 0 && (
+          <Text>No one has registered, yet..</Text>
+        )}
       </>
     )
   }
@@ -305,16 +395,26 @@ CourseIndex.propTypes = {
     modal: PropTypes.shape({}),
     addCourseRAM: PropTypes.shape({
       courseTitle: PropTypes.string,
-      courseDate: PropTypes.string,
+      courseDate: PropTypes.arrayOf(
+        PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string])
+      ),
       location: PropTypes.string,
     }),
   }),
+  setModal: PropTypes.func,
   registrants: PropTypes.arrayOf(PropTypes.shape({})),
   courses: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
     })
   ),
+  forms: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      formTitle: PropTypes.string,
+    })
+  ),
+  getForms: PropTypes.func,
   getCourses: PropTypes.func.isRequired,
   getRegistrants: PropTypes.func.isRequired,
   dispatch: PropTypes.func,
@@ -325,13 +425,19 @@ const mapState = state => ({
   el: state.elCOURSE_INDEX,
   courses: state.courses,
   registrants: state.registrants,
+  forms: state.forms,
 })
 
 const mapDispatch = dispatch => ({
   dispatch,
+  // this is not relate to this.props.el.modal (this sets the app modal)
+  setModal: state => {
+    dispatch({ type: 'MODAL_SET_STATE', state })
+  },
   setEl: state => {
     dispatch({ type: 'COURSE_INDEX_SET_STATE', state })
   },
+  getForms: () => dispatch(API.getForms),
   // stop doing this please.. use this.props.dispatch(..your code)
   getCourses: () => dispatch(API.getCourses),
   getRegistrants: () => dispatch(API.getRegistrants),
