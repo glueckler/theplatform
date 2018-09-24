@@ -151,6 +151,11 @@ class AppNav extends PureComponent {
             <div style={{ marginTop: '60px' }}>
               {[
                 {
+                  linkName: 'Sign In Preview',
+                  iconName: 'login',
+                  link: '/login',
+                },
+                {
                   linkName: 'Courses',
                   iconName: 'certificate',
                   link: '/courses',
@@ -160,11 +165,13 @@ class AppNav extends PureComponent {
                   iconName: 'checkbox-list',
                   link: '/forms',
                 },
-                {
-                  linkName: 'Payment Dash',
-                  iconName: 'dollar-bill',
-                  link: '/',
-                },
+                // TODO: asdf (dean)
+                // originally for the payment dashboard..
+                // {
+                //   linkName: 'Payment Dash',
+                //   iconName: 'dollar-bill',
+                //   link: '/',
+                // },
               ].map(nav => {
                 return (
                   <Link

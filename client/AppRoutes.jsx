@@ -10,6 +10,8 @@ const AppRoutes = props => {
   return (
     <>
       <Route path="/login" component={Login} />
+      <Route path="/sign-in" component={Login} />
+      <Route path="/signin" component={Login} />
       <Route path="/forms" component={FormEditor} />
       <Route path="/courses" component={CourseIndex} />
     </>

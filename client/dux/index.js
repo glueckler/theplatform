@@ -5,6 +5,7 @@ import forms from './forms'
 import formFields from './formFields'
 import courses from './courses'
 import registrants from './registrants'
+import loading from './loading'
 
 export default combineReducers({
   ...elements,
@@ -12,4 +13,5 @@ export default combineReducers({
   formFields,
   courses,
   registrants,
+  loading,
 })

@@ -6,6 +6,7 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import AppRoutes from 'client/AppRoutes'
 import AppModal from 'elements/AppModal'
 import AppNav from 'elements/AppNav'
+import Loading from 'elements/Loading'
 
 const App = () => (
   <Router>
@@ -14,6 +15,7 @@ const App = () => (
         <AppNav />
         <AppRoutes />
         <AppModal />
+        <Loading />
       </>
     </Provider>
   </Router>

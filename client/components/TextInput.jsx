@@ -4,9 +4,9 @@ import classNames from 'classnames'
 import styled from 'styled-components'
 
 const StyledInput = styled.input`
-  &:-webkit-autofill {
+  /* &:-webkit-autofill {
     -webkit-box-shadow: 0 0 0px 1000px yellow inset;
-  }
+  } */
 `
 
 class TextInput extends PureComponent {

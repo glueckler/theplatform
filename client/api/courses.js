@@ -1,49 +1,16 @@
-import { dispatchData } from './utils'
 import { coursesActions as A } from 'dux/courses'
+import { mkAPIReq } from 'api/utils'
 
-export const getCourses = dispatch => {
-  const fake = new Promise(resolve => {
-    setTimeout(() => {
-      resolve(require('client/examples/fakeCourses'))
-    }, 800)
-  })
-  return fake.then(data => {
-    dispatch(dispatchData(A.LOAD, data))
-  })
-}
+export const getCourses = mkAPIReq({
+  fakeData: require('client/examples/fakeCourses'),
+  action: A.LOAD,
+})
 
-export const addCourse = ({ courseData }) => dispatch => {
-  const fake = new Promise(resolve => {
-    setTimeout(() => {
-      resolve(courseData)
-    }, 500)
-  })
+export const addCourse = ({ courseData }) =>
+  mkAPIReq({ fakeData: courseData, action: A.CREATE })
 
-  fake.then(data => {
-    dispatch(dispatchData(A.CREATE, data))
-  })
-}
+export const updateCourse = ({ id, nxtCourse }) =>
+  mkAPIReq({ fakeData: nxtCourse, action: A.UPDATE })
 
-export const updateCourse = ({ id, nxtCourse }) => dispatch => {
-  const fake = new Promise(resolve => {
-    setTimeout(() => {
-      resolve(nxtCourse)
-    }, 500)
-  })
-
-  fake.then(data => {
-    dispatch(dispatchData(A.UPDATE, data))
-  })
-}
-
-export const deleteCourse = ({ id, nxtCourses }) => dispatch => {
-  const fake = new Promise(resolve => {
-    setTimeout(() => {
-      resolve(nxtCourses)
-    }, 500)
-  })
-
-  return fake.then(data => {
-    dispatch(dispatchData(A.DELETE, data))
-  })
-}
+export const deleteCourse = ({ id, nxtCourses }) =>
+  mkAPIReq({ fakeData: nxtCourses, action: A.DELETE })
