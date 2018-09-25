@@ -9,6 +9,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 const rootPath = resolve(__dirname)
 const distPath = resolve(__dirname, 'dist')
+
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 if (isDevelopment)
@@ -16,7 +17,7 @@ if (isDevelopment)
 
 const config = {
   devtool: isDevelopment ? 'cheap-module-eval-source-map' : 'source-map',
-
+  mode: isDevelopment ? 'development' : 'production',
   entry: {
     vendor: [
       'react',
@@ -100,9 +101,9 @@ const config = {
     proxy: {
       '/api/': {
         target: 'http://localhost:1323',
-        changeOrigin: true
-      }
-    }
+        changeOrigin: true,
+      },
+    },
   },
 }
 
