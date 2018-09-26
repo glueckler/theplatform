@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import { pick } from 'yoots'
 
-export const RadioOption = ({ label, ...props }) => {
+export const RadioOption = function({ label, ...props }) {
   return (
     <div className="radio">
       <input
@@ -21,6 +21,13 @@ export const RadioOption = ({ label, ...props }) => {
     </div>
   )
 }
+
+// we need to identify RadioOption in the future
+// using child.type.name property doesn't work when webpack changes
+// the Component name from "RadioOption" to "c" for example
+const OPTION_TYPE_NAME = 'RadioOption'
+// properties attached to the Component will be accessible un the "type" of each child
+RadioOption.componentTypeName = OPTION_TYPE_NAME
 
 RadioOption.propTypes = {
   label: PropTypes.string.isRequired,
@@ -41,7 +48,7 @@ const Radios = ({
       {label && <label className="clr-control-label">{label}</label>}
       <div className="clr-control-container">
         {React.Children.map(children, child => {
-          if (child.type && child.type.name === 'RadioOption') {
+          if (child.type.componentTypeName === OPTION_TYPE_NAME) {
             const checked = (() => {
               if (value === undefined) return
               child.props.value === value

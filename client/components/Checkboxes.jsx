@@ -16,7 +16,11 @@ export const Checkbox = ({ label, ...props }) => {
   )
 }
 
-Checkbox.proptypes = {
+// see "Radios" component for what's going on here..
+const CHECKBOX_TYPE = 'Checkbox'
+Checkbox.componentTypeName = CHECKBOX_TYPE
+
+Checkbox.propTypes = {
   label: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
 }
@@ -27,7 +31,7 @@ const Checkboxes = ({ label, children, onChange, values, ...props }) => {
       {label && <label className="clr-control-label">{label}</label>}
       <div className="clr-control-container">
         {React.Children.map(children, child => {
-          if (child.type && child.type.name === 'Checkbox') {
+          if (child.type && child.type.componentTypeName === CHECKBOX_TYPE) {
             const checked = (() => {
               if (values === undefined) return
               return (values || []).includes(child.props.value)
