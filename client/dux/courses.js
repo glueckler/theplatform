@@ -1,4 +1,5 @@
 import { commonActionsGen } from './utils'
+import { mergeByProp } from 'yoots'
 
 const A = commonActionsGen('COURSES')
 
@@ -9,7 +10,7 @@ export const coursesActions = {
 
 export default (state = [], action) => {
   if (action.type === A.LOAD) {
-    return [...action.data]
+    return mergeByProp(state, action.data, 'id')
   }
   if (action.type === A.CREATE) {
     return [...state, action.data]

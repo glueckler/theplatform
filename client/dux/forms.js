@@ -1,4 +1,5 @@
 import { commonActionsGen } from './utils'
+import { mergeByProp } from 'yoots'
 
 const actions = commonActionsGen('FORMS')
 
@@ -9,7 +10,8 @@ export const formActions = {
 // Reducers
 export default (state = [], action) => {
   if (action.type === actions.LOAD || action.type === actions.UPDATE) {
-    return [...action.data]
+    // merge by id Property to avoid duplicates
+    return mergeByProp(state, action.data, 'id')
   }
   if (action.type === actions.CREATE) {
     return [...state, action.data]
