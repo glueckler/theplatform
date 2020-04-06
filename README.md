@@ -1,16 +1,14 @@
-# The Platform
+# The Platform (Event Manager Software)
 
-As of now, The Platform is a front end application filled with fake data.  It's a Prototype but has the ports available for an API.  The site even mimics response times and Loading animation for a simulated back end feel.
+Front End Application built with React, Redux, and Clarity UI
 
-### Tech..
-
-React, Redux, Clarity UI
-
-### Visit Site Prototype.. 
-[http://theplatform.deanglueckler.com](http://theplatform.deanglueckler.com)
+There's no prototype online anymore however you can check out some of the components here: https://github.com/glueckler/theplatform/tree/master/client/components
 
 ![The Platform](https://raw.githubusercontent.com/glueckler/theplatform/master/walk-throu-gifs/tp-walk-1.gif "Walkthrough of The platform")
 
 ---
 
 ![The Platform](https://raw.githubusercontent.com/glueckler/theplatform/master/walk-throu-gifs/tp-walk-2.gif "Walkthrough of The platform")
+
+
+I designed and built this software from the ground up as a potential startup.  It didn't go anywhere in the end.
